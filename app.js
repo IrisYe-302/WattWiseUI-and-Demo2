@@ -12,10 +12,10 @@ const MODEL = {
   standbyHoursPerDay: 20
 };
 
-// Electricity plans the household can pick in Settings. Prices are rounded 2026 figures for the demo.
+// Illustrative plan prices for this simulation; not verified current utility tariffs.
 const PLANS = {
-  sce: { label: "SCE TOU-D-4-9PM", price: 0.385, peakDiff: 0.24, note: "Southern California Edison time-of-use. Standby load is priced at about 38.5¢/kWh averaged over the day; the 4 to 9 PM peak costs about 24¢/kWh more than off-peak." },
-  ladwp: { label: "LADWP R-1A", price: 0.30, peakDiff: 0, note: "Los Angeles Department of Water and Power tiered plan, about 30¢/kWh. The price does not change by time of day, so shifting loads saves no money, only peak demand." }
+  sce: { label: "SCE TOU-D-4-9PM", price: 0.385, peakDiff: 0.24, note: "Illustrative Southern California Edison time-of-use example. Standby load is priced at about 38.5¢/kWh averaged over the day; the 4 to 9 PM peak costs about 24¢/kWh more than off-peak." },
+  ladwp: { label: "LADWP R-1A", price: 0.30, peakDiff: 0, note: "Illustrative Los Angeles Department of Water and Power tiered example, about 30¢/kWh. The price does not change by time of day, so shifting loads saves no money, only peak demand." }
 };
 const DEFAULT_PROFILE = { name: "Iris M.", home: "Iris’s home", role: "Owner", budget: 150, plan: "sce" };
 const STORE_KEY = "wattwise.profile";
@@ -43,7 +43,7 @@ const ports = [
 ];
 
 const suggestions = [
-  { id: "standby", title: "Pause standby entertainment", body: "Your TV and game console sit on standby about 20 hours a day. Pause both now and restore power when you return.", impact: "Best match", icon: "power", watts: "21 W", savings: "", applied: false },
+  { id: "standby", title: "Pause standby entertainment", body: "Your TV and game console sit on standby about 20 hours a day. Review which Flexible devices can pause. Restore power with Restore now when you need them again.", impact: "Best match", icon: "power", watts: "21 W", savings: "", applied: false },
   { id: "dishwasher", title: "Run the dishwasher after 9 PM", body: "", impact: "Low effort", icon: "clock-3", watts: "1.2 kWh per run", savings: "", applied: false }
 ];
 
@@ -76,7 +76,7 @@ const ACTIVITY_SEED = [
   { type: "savings", when: "Oct 16, 9:00 PM", icon: "clock-3", title: "Water heater moved out of the 4 to 9 PM peak", detail: () => plan().peakDiff > 0 ? `Ran 9:00 to 10:10 PM. 1.4 kWh at the off-peak price saved $${(1.4 * plan().peakDiff).toFixed(2)}.` : "Ran 9:00 to 10:10 PM, after the evening peak. Your plan has one price, so this eased the grid rather than your bill.", channel: "wifi" },
   { type: "network", when: "Oct 15, 2:13 AM", icon: "wifi-off", title: "Wi-Fi dropped for 4 minutes", detail: "The router restarted for an update. Wattwise kept control through the power line: 2 commands delivered, none lost.", channel: "line" },
   { type: "savings", when: "Oct 13, 11:30 PM", icon: "plug-zap", title: "Chargers and printer switched off overnight", detail: "Approved standby, 20 W for 8 hours.", channel: "wifi" },
-  { type: "protection", when: "Oct 9, 3:05 PM", icon: "shield-check", title: "Medical cooler marked Critical", detail: "Set by Iris. Wattwise will never switch it off.", channel: "app" },
+  { type: "protection", when: "Oct 9, 3:05 PM", icon: "shield-check", title: "Medical cooler marked Critical", detail: "Set by Iris. Kept powered at every simulated level.", channel: "app" },
   { type: "outage", when: "Oct 4, 6:40 PM", icon: "battery-charging", title: "Grid outage, 2 h 10 m", detail: "Utility repair on the feeder. Level 3 on battery; every critical device stayed on. Battery 82% to 68%.", channel: "wifi" }
 ];
 const liveActivity = [];
@@ -91,6 +91,9 @@ function logEvent(type, icon, title, detail, channel = "wifi") {
 // Levels: 0 Normal, 1 Cut waste, 2 Defer, 3 On battery, 4 Critical only. Saver mode runs levels 1 and 2 every day.
 const state = { mode: "saver", level: 2, outageHours: 48 };
 let stepDownTimer = null;
+let deviceView = "ports";
+let chartTransitionLabel = "";
+let chartFocusIndex = 16;
 const INITIAL_PORTS = JSON.parse(JSON.stringify(ports));
 const GUIDE = [
   { title: "Start clean", say: "This is Iris’s home: what it uses now, and the bill on track for the month.", run: () => resetDemoState() },
@@ -126,8 +129,8 @@ function deviceDraw(device) {
   return device.watts;
 }
 function deviceDetail(device) {
-  if (outageCut(device)) return state.level >= 4 ? "Paused · critical-only backup" : "Paused · standby waste cut on battery";
-  if (isStandbyPaused(device)) return "Paused by Wattwise · restores when you return";
+  if (outageCut(device)) return state.level >= 4 ? "Paused · protected-device backup" : "Paused · standby waste cut on battery";
+  if (isStandbyPaused(device)) return "Paused by suggestion · use Restore now";
   return device.detail;
 }
 const protectedKW = () => allDevices().filter(isProtected).reduce((sum, d) => sum + d.watts, 0) / 1000;
@@ -152,6 +155,60 @@ function hoursLabel(hours) {
 const money = value => value >= 100 ? `$${Math.round(value)}` : `$${value.toFixed(2)}`;
 const kwLabel = kw => kw < 1 ? kw.toFixed(2).replace(/0$/, "") : kw.toFixed(1);
 
+/* ---------- illustrative history with state-derived current endpoint ---------- */
+// Earlier samples are fixed demo history. Mode/actions change the current endpoint only.
+const CHART_HISTORY = [0.43, 0.51, 0.48, 0.69, 0.73, 0.62, 0.55, 0.67, 0.89, 1.08, 1.19, 1.42, 1.32, 1.12, 0.98, 0.92];
+const CHART_USUAL = [0.58, 0.66, 0.65, 0.87, 0.96, 0.87, 0.82, 0.96, 1.17, 1.38, 1.49, 1.72, 1.64, 1.49, 1.39, 1.32, MODEL.usualKW];
+const chartClock = date => date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+function chartSamples() { return [...CHART_HISTORY, homeKW()]; }
+function chartReadout(index) {
+  const value = chartSamples()[index], usual = CHART_USUAL[index];
+  const time = index === 16 ? "Now" : chartClock(new Date(Date.now() - (16 - index) * 30 * 60000));
+  $("#usageReadout").innerHTML = `<span>${time} <small>· simulated</small></span><strong>${Math.round(value * 1000)} W <small>use</small></strong><span>${Math.round(usual * 1000)} W usual</span><span class="chart-saving">${Math.round(Math.abs(usual - value) * 1000)} W ${value <= usual ? "lower" : "higher"}</span>`;
+}
+function renderUsageChart() {
+  const values = chartSamples();
+  const x = index => index * 35;
+  const y = value => 154 - value / 1.8 * 144;
+  const path = data => data.map((value, index) => `${index ? "L" : "M"}${x(index)} ${y(value).toFixed(3)}`).join(" ");
+  $("#usageArea").setAttribute("d", `${path(values)} L560 154 L0 154 Z`);
+  $("#usageLine").setAttribute("d", path(values));
+  $("#usualLine").setAttribute("d", path(CHART_USUAL));
+  const current = Math.round(homeKW() * 1000), usual = Math.round(MODEL.usualKW * 1000);
+  $("#usageDescription").textContent = `Illustrative history over the last eight hours, with ${current} watts simulated use now and ${usual} watts usual reference. Solid green is simulated use; dashed grey is the usual reference. Earlier samples are presets. ${chartTransitionLabel ? `Current endpoint: ${chartTransitionLabel}.` : ""}`;
+  $("#usageChart").setAttribute("aria-label", `Simulated use now ${current} watts; usual reference ${usual} watts`);
+  $("#usageTimeLabels").innerHTML = [8, 6, 4, 2, 0].map(hours => `<span>${hours ? chartClock(new Date(Date.now() - hours * 3600000)) : "Now"}</span>`).join("");
+  $("#chartPoints").innerHTML = values.map((value, index) => `<circle class="chart-point ${index === 16 ? "current-point" : ""}" cx="${x(index)}" cy="${y(value).toFixed(3)}" r="${index === 16 ? 5 : 8}" tabindex="${index === chartFocusIndex ? 0 : -1}" role="button" data-point="${index}" aria-label="${index === 16 ? "Now" : `${(16 - index) / 2} hours ago`}: ${Math.round(value * 1000)} watts simulated, ${Math.round(CHART_USUAL[index] * 1000)} watts usual"><title>${Math.round(value * 1000)} W simulated · ${Math.round(CHART_USUAL[index] * 1000)} W usual</title></circle>`).join("");
+  $("#chartTransition").toggleAttribute("hidden", !chartTransitionLabel);
+  $("#chartContext").textContent = chartTransitionLabel ? `Now: ${chartTransitionLabel}. Earlier history stays preset; the endpoint reflects the current simulation. Hover, tap or use arrow keys to compare.` : "Preset samples, not measurements. Hover, tap or focus the chart and use arrow keys to compare.";
+  chartReadout(chartFocusIndex);
+}
+$("#chartPoints").addEventListener("pointerover", event => { if (event.target.dataset.point) chartReadout(Number(event.target.dataset.point)); });
+$("#chartPoints").addEventListener("click", event => { if (event.target.dataset.point) { chartFocusIndex = Number(event.target.dataset.point); chartReadout(chartFocusIndex); } });
+$("#chartPoints").addEventListener("focusin", event => { if (event.target.dataset.point) { chartFocusIndex = Number(event.target.dataset.point); chartReadout(chartFocusIndex); } });
+$("#chartPoints").addEventListener("keydown", event => {
+  if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+  event.preventDefault();
+  chartFocusIndex = event.key === "Home" ? 0 : event.key === "End" ? 16 : Math.max(0, Math.min(16, chartFocusIndex + (event.key === "ArrowLeft" ? -1 : 1)));
+  document.querySelectorAll("[data-point]").forEach(point => point.setAttribute("tabindex", Number(point.dataset.point) === chartFocusIndex ? "0" : "-1"));
+  $(`[data-point="${chartFocusIndex}"]`).focus();
+});
+function renderOutageSummary() {
+  const outage = state.mode === "outage";
+  $("#outageSummary").hidden = !outage;
+  $("#billCard").hidden = outage;
+  if (!outage) return;
+  const runtime = availableKWh() / homeKW();
+  $("#outageRuntime").textContent = `${hoursLabel(runtime)} estimated`;
+  const covers = runtime >= state.outageHours;
+  $("#outageCoverage").textContent = covers ? `Estimated to cover the ${state.outageHours} h scenario · ${hoursLabel(runtime - state.outageHours)} model margin` : stepDownTimer ? `Checking a lower-load plan for the ${state.outageHours} h scenario…` : `Estimated shortfall: ${hoursLabel(state.outageHours - runtime)} for the ${state.outageHours} h scenario. Keep protected devices on; additional supply would be needed.`;
+  $("#outageCoverage").className = covers ? "outage-covered" : "outage-shortfall";
+  $("#outageFacts").innerHTML = `<div><dt>Expected outage</dt><dd>${state.outageHours} h</dd></div><div><dt>Battery available</dt><dd>${availableKWh().toFixed(2)} kWh · 82%</dd></div><div><dt>At this level</dt><dd>${Math.round(homeKW() * 1000)} W · Level ${state.level}</dd></div>`;
+  $("#outagePowered").textContent = allDevices().filter(isProtected).map(device => device.name).join(" · ") + (state.level === 3 ? " · other active flexible loads at Level 3" : "");
+  const paused = allDevices().filter(device => outageCut(device) && device.watts > 0).map(device => device.name);
+  $("#outagePaused").textContent = [...paused, "Water heater (deferred)", ...(ports[0].devices[1].level === "Flexible" ? [ports[0].devices[1].name + " (waiting)"] : [])].join(" · ");
+}
+
 /* ---------- date and greeting ---------- */
 const now = new Date();
 const weekday = now.toLocaleDateString("en-US", { weekday: "long" });
@@ -170,29 +227,36 @@ function renderProfile() {
 renderProfile();
 
 /* ---------- rendering ---------- */
+const PRIORITY_BEHAVIOR = {
+  Critical: "Keeps power at every level in this simulation.",
+  Important: "Keeps power in Saver and during outages in this simulation.",
+  Flexible: "Approved standby may pause; other flexible loads pause during long outages."
+};
 function renderPorts() {
-  portList.innerHTML = ports.map((port, portIndex) => `
-    <article class="port-card ${port.devices.length ? "" : "empty-port"}">
-      <header class="port-card-header">
-        <div class="port-symbol"><i data-lucide="blocks"></i></div>
-        <div><span class="port-kicker">${port.status}</span><h3>${port.port}</h3><p>${port.room} · ${port.devices.length} ${port.devices.length === 1 ? "device" : "devices"}</p></div>
-        <strong>${port.devices.reduce((total, device) => total + deviceDraw(device), 0)} W</strong>
-      </header>
-      <div class="nested-devices">
-        ${port.devices.length ? port.devices.map((device, deviceIndex) => `
-          <div class="nested-device ${deviceDraw(device) === 0 && device.watts > 0 ? "paused-device" : ""}">
-            <div class="device-icon"><i data-lucide="${device.icon}"></i></div>
-            <div class="nested-device-copy"><h4>${escapeHtml(device.name)}</h4><p>${deviceDetail(device)}</p></div>
-            <span class="nested-watts">${deviceDraw(device)} W</span>
-            <label><span class="sr-only">Criticality for ${escapeHtml(device.name)} on ${port.port}</span><select class="criticality-select" data-port="${portIndex}" data-device="${deviceIndex}">
-              ${["Critical", "Important", "Flexible"].map(level => `<option ${level === device.level ? "selected" : ""}>${level}</option>`).join("")}
-            </select></label>
-            <button class="edit-device" data-edit-port="${portIndex}" data-edit-device="${deviceIndex}" aria-label="Edit ${escapeHtml(device.name)}"><i data-lucide="pencil"></i></button>
-          </div>`).join("") : `<p class="empty-message">No devices assigned yet.</p>`}
-      </div>
-      <button class="add-device-to-port" data-add-port="${portIndex}"><i data-lucide="plus"></i>Add device to ${port.port}</button>
-    </article>`).join("");
+  const groups = deviceView === "ports" ? ports.map((port, index) => ({ name: port.port, indices: [index] })) :
+    [...new Set(ports.map(port => port.room))].map(room => ({ name: room, indices: ports.flatMap((port, index) => port.room === room ? [index] : []) }));
+  portList.innerHTML = groups.map(group => {
+    const entries = group.indices.flatMap(portIndex => ports[portIndex].devices.map((device, deviceIndex) => ({ device, portIndex, deviceIndex })));
+    const groupPorts = group.indices.map(index => ports[index]);
+    return `<article class="port-card ${entries.length ? "" : "empty-port"}">
+      <header class="port-card-header"><div class="port-symbol"><i data-lucide="${deviceView === "rooms" ? "house" : "blocks"}"></i></div><div><span class="port-kicker">SIMULATED · ${deviceView === "rooms" ? "ROOM" : groupPorts[0].status}</span><h3>${escapeHtml(group.name)}</h3><p>${escapeHtml(deviceView === "rooms" ? groupPorts.map(port => port.port).join(" · ") : groupPorts[0].room)} · ${entries.length} ${entries.length === 1 ? "device" : "devices"}</p></div><strong>${entries.reduce((sum, { device }) => sum + deviceDraw(device), 0)} W</strong></header>
+      <div class="nested-devices">${entries.length ? entries.map(({ device, portIndex, deviceIndex }) => `
+        <div class="nested-device ${deviceDraw(device) === 0 && device.watts > 0 ? "paused-device" : ""}">
+          <div class="device-icon"><i data-lucide="${device.icon}"></i></div>
+          <div class="nested-device-copy"><h4>${escapeHtml(device.name)}</h4><p>${escapeHtml(deviceDetail(device))}${deviceView === "rooms" ? ` · ${ports[portIndex].port}` : ""}</p><small class="device-behavior">${PRIORITY_BEHAVIOR[device.level]}</small></div>
+          <span class="nested-watts">${deviceDraw(device)} W</span>
+          <label><span class="sr-only">Priority for ${escapeHtml(device.name)} on ${ports[portIndex].port}</span><select class="criticality-select" data-port="${portIndex}" data-device="${deviceIndex}" aria-label="Priority for ${escapeHtml(device.name)}">${["Critical", "Important", "Flexible"].map(level => `<option ${level === device.level ? "selected" : ""}>${level}</option>`).join("")}</select></label>
+          <button class="edit-device" data-edit-port="${portIndex}" data-edit-device="${deviceIndex}" aria-label="Edit ${escapeHtml(device.name)}"><i data-lucide="pencil"></i></button>
+        </div>`).join("") : `<p class="empty-message">No devices assigned yet.</p>`}</div>
+      ${group.indices.map(index => `<button class="add-device-to-port" data-add-port="${index}"><i data-lucide="plus"></i>Add device to ${ports[index].port}</button>`).join("")}
+    </article>`;
+  }).join("");
 }
+document.querySelectorAll("[data-device-view]").forEach(button => button.addEventListener("click", () => {
+  deviceView = button.dataset.deviceView;
+  document.querySelectorAll("[data-device-view]").forEach(item => { item.classList.toggle("active", item === button); item.setAttribute("aria-pressed", String(item === button)); });
+  renderPorts(); if (window.lucide) lucide.createIcons();
+}));
 
 function renderDeviceStrip() {
   const picks = [ports[0].devices[0], ports[1].devices[0], ports[1].devices[1]].filter(Boolean);
@@ -210,7 +274,11 @@ function renderDeviceStrip() {
 
 // Savings follow the chosen plan: standby is 21 W for about 20 h a day; the dishwasher runs about 15 times a month.
 function priceSuggestions() {
-  const standbyYear = 21 * MODEL.standbyHoursPerDay * 365 / 1000 * plan().price;
+  const watts = eligibleStandby().reduce((sum, device) => sum + device.watts, 0);
+  const standbyYear = watts * MODEL.standbyHoursPerDay * 365 / 1000 * plan().price;
+  suggestions[0].watts = `${watts} W`;
+  $("#quickInsightWatts").textContent = `${watts} W`;
+  $("#quickInsightTitle").textContent = `Avoid about ${Math.round(watts * MODEL.standbyHoursPerDay * 365 / 1000)} kWh a year of standby use`;
   suggestions[0].savings = `$${Math.round(standbyYear)} / year`;
   $("#quickInsightSaving").textContent = `$${Math.round(standbyYear)}`;
   const dish = suggestions[1];
@@ -230,7 +298,7 @@ function renderSuggestions() {
       <div class="suggestion-top"><div class="device-icon"><i data-lucide="${item.icon}"></i></div><span class="impact-pill">${item.applied ? "Applied" : item.impact}</span></div>
       <h3>${item.title}</h3><p>${item.body}</p>
       <div class="suggestion-stats"><span>Impact<strong>${item.watts}</strong></span><span>Estimated saving<strong>${item.savings}</strong></span></div>
-      <button class="button suggestion-apply" data-suggestion="${index}" ${item.applied ? "disabled" : ""}>${item.applied ? "Applied" : "Review & apply"}</button>
+      <p class="suggestion-state">${item.applied ? index === 0 ? "Suggestion active · restore manually when needed" : "Tonight’s schedule confirmed · cancel anytime" : "Review devices and recovery before making a change"}</p><button class="button suggestion-apply" data-suggestion="${index}">${item.applied ? index === 0 ? "Restore now" : "Cancel schedule change" : "Review & apply"}</button>
     </article>`).join("");
   const open = suggestions.filter(item => !item.applied).length;
   $("#insightCountBadge").textContent = open;
@@ -238,9 +306,10 @@ function renderSuggestions() {
   $("#insightCountLabel").textContent = open ? `${open} READY FOR REVIEW` : "ALL SUGGESTIONS APPLIED";
 
   const quick = $("#applySuggestion");
-  quick.disabled = suggestions[0].applied;
+  quick.disabled = false;
   const pausedW = allDevices().filter(isStandbyPaused).reduce((sum, d) => sum + d.watts, 0);
-  quick.textContent = suggestions[0].applied ? `Paused · ${pausedW} W saved` : "Pause standby devices";
+  quick.textContent = suggestions[0].applied ? "Restore now" : "Review standby pause";
+  $("#quickInsightText").textContent = suggestions[0].applied ? `Suggestion active for ${pausedW} W of eligible standby. Restore now removes this pause; an outage plan may still keep Flexible devices paused.` : "Review the eligible standby devices before pausing them. You can restore power here at any time; Critical and Important devices stay powered.";
   $("#quickInsightLabel").textContent = suggestions[0].applied ? "SAVING ENERGY NOW" : "NEW SUGGESTION";
 }
 
@@ -256,7 +325,7 @@ function renderStatus() {
   trend.className = `trend ${outage ? "outage" : pct > 0 ? "down" : "flat"}`;
   $("#trendValue").textContent = outage ? "On battery" : pct > 0 ? `${pct}%` : "0%";
   $("#powerNote").textContent = outage
-    ? state.level >= 4 ? `Only protected devices are powered · ${Math.round(protectedKW() * 1000)} W` : "On battery · standby cut, flexible loads waiting"
+    ? state.level >= 4 ? `Only Critical + Important devices are powered · ${Math.round(protectedKW() * 1000)} W` : "On battery · standby cut, flexible loads waiting"
     : pct > 0 ? `${diff.toFixed(1)} kW lower than your usual ${weekday}` : `About the same as your usual ${weekday}`;
 
   $("#runtimeLabel").textContent = outage ? "Runtime at this level" : "Protected runtime";
@@ -265,7 +334,7 @@ function renderStatus() {
   const deferred = allDevices().filter(d => d.level === "Flexible" && d.watts > 0 && deviceDraw(d) === 0).length + (state.level >= 2 ? 1 : 0);
   $("#protectedCount").textContent = `${protectedLoads} ${protectedLoads === 1 ? "load" : "loads"}`;
   $("#deferredCount").textContent = `${deferred} flexible`;
-  $("#batteryTitle").textContent = outage ? `Battery plan: Level ${state.level}` : "Power plan agreed";
+  $("#batteryTitle").textContent = outage ? `Simulated battery plan: Level ${state.level}` : "Power plan agreed";
   $("#batteryText").textContent = outage
     ? `Devices are sharing ${Math.round(kw * 1000)} W of battery power for about ${hoursLabel(runtime)}. Expected outage: ${state.outageHours} h.`
     : `Devices are sharing what they need, what can wait, and which loads must remain protected. If the grid drops, protected devices last about ${hoursLabel(protectedRuntime)}.`;
@@ -275,7 +344,9 @@ function renderStatus() {
   $("#gridTitle").textContent = outage ? "Grid outage" : "Grid connected";
   $("#gridSubtitle").textContent = outage ? `On battery · ${hoursLabel(runtime)} left` : "Home is protected";
   $("#livePill").classList.toggle("on-battery", outage);
-  $("#livePillText").textContent = outage ? "On battery" : "Live";
+  $("#livePillText").textContent = outage ? "Simulation · battery" : "Simulation";
+  renderUsageChart();
+  renderOutageSummary();
 
   if (outage) $("#modeDescription").textContent = `Grid power is unavailable. Expected outage: ${state.outageHours} hours. Critical and important devices always stay on.`;
   renderLadder();
@@ -377,8 +448,6 @@ function escapeHtml(text) {
   return String(text).replace(/[&<>"']/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
 }
 
-render();
-
 /* ---------- toast ---------- */
 const shell = $(".app-shell");
 const panel = $(".assistant-panel");
@@ -443,9 +512,10 @@ function setMode(mode, force) {
   const wasOutage = state.mode === "outage";
   clearTimeout(stepDownTimer); stepDownTimer = null;
   state.mode = mode;
+  chartTransitionLabel = mode === "outage" ? "Outage started" : wasOutage ? "Grid restored" : mode === "saver" ? "Saver selected" : "Normal selected";
   state.level = mode === "normal" ? 0 : mode === "saver" ? 2 : 3;
   if (mode === "outage") logEvent("outage", "zap-off", "Grid outage started", `Expected to last ${state.outageHours} h. Level 3 on battery: about ${hoursLabel(runtimeAt(3))} at this level.`);
-  else if (wasOutage) logEvent("outage", "plug-zap", "Grid power restored", "Batteries back on standby. Paused loads returned on their own.");
+  else if (wasOutage) logEvent("outage", "plug-zap", "Grid power restored", "Simulation: outage pauses removed. Active standby suggestions stay paused until Restore now; deferred schedules remain in place.");
   else logEvent("savings", mode === "saver" ? "leaf" : "layout-dashboard", mode === "saver" ? "Smart saver turned on" : "Normal mode", mode === "saver" ? "Standby loads pause automatically; loads that can wait run at cheaper hours." : "Everything runs as you use it. Wattwise keeps watching.", "app");
   if (mode === "outage") {
     stepDownTimer = setTimeout(() => {
@@ -453,9 +523,10 @@ function setMode(mode, force) {
       if (state.mode !== "outage") return;
       if (runtimeAt(3) < state.outageHours) {
         state.level = 4;
-        logEvent("outage", "shield-check", "Stepped down to Level 4, critical only", `Level 3 would last ${hoursLabel(runtimeAt(3))}, short of the expected ${state.outageHours} h. Protected devices now last about ${hoursLabel(runtimeAt(4))}.`);
+        chartTransitionLabel = "Protected loads only";
+        logEvent("outage", "shield-check", "Stepped down to Level 4, protected loads only", `Level 3 would last ${hoursLabel(runtimeAt(3))}, short of the expected ${state.outageHours} h. Protected devices now last about ${hoursLabel(runtimeAt(4))}.`);
         render();
-        showToast(`Level 3 would last ${hoursLabel(runtimeAt(3))}. Stepping down to critical only: ${hoursLabel(runtimeAt(4))}`);
+        showToast(`Level 3 would last ${hoursLabel(runtimeAt(3))}. Stepping down to protected devices: ${hoursLabel(runtimeAt(4))}`);
       } else {
         logEvent("outage", "check", "Held at Level 3", `It lasts ${hoursLabel(runtimeAt(3))}, longer than the expected ${state.outageHours} h, so comfort loads stayed on.`);
         render();
@@ -472,17 +543,54 @@ function setMode(mode, force) {
 }
 document.querySelectorAll("[data-mode]").forEach(button => button.addEventListener("click", () => setMode(button.dataset.mode)));
 
-/* ---------- suggestions (overview card and insights page share one state) ---------- */
+/* ---------- reviewable and reversible suggestions ---------- */
+const eligibleStandby = () => allDevices().filter(device => device.standby && device.level === "Flexible");
+const suggestionDialog = $("#suggestionDialog");
+let pendingSuggestion = null;
+let dishwasherPreviousDetail = null;
 function applySuggestion(index) {
   const item = suggestions[index];
-  if (item.applied) return;
-  item.applied = true;
-  if (item.id === "dishwasher") ports[0].devices[1].detail = "Moved to 10:30 PM tonight";
-  logEvent("savings", item.id === "standby" ? "power" : "clock-3", item.id === "standby" ? "TV and game console paused" : "Dishwasher moved to 10:30 PM", item.id === "standby" ? `Approved in the app. Saves 21 W, about ${suggestions[0].savings.replace(" / year", "")} a year.` : "It now runs after the 4 to 9 PM peak.");
-  render();
-  showToast(item.id === "standby" ? "TV and game console paused safely" : `${item.title} applied`);
+  if (item.applied) { restoreSuggestion(index); return; }
+  pendingSuggestion = index;
+  priceSuggestions();
+  const targets = index === 0 ? allDevices().filter(device => device.standby) : [ports[0].devices[1]];
+  const eligible = index === 0 ? eligibleStandby() : targets.filter(device => device.level === "Flexible");
+  $("#suggestionReviewTitle").textContent = item.title;
+  $("#suggestionReviewDevices").innerHTML = targets.map(device => `<li><span><strong>${escapeHtml(device.name)}</strong><small>${escapeHtml(device.level)} · ${device.watts} W preset draw</small></span><b class="${eligible.includes(device) ? "eligible" : "excluded"}">${eligible.includes(device) ? index === 0 ? "Will pause" : "Confirm schedule" : "Protected · unchanged"}</b></li>`).join("");
+  $("#suggestionReviewFacts").innerHTML = index === 0
+    ? `<div><dt>Duration</dt><dd>Until you select Restore now</dd></div><div><dt>Restore</dt><dd>Available here and in Insights</dd></div><div><dt>Eligible standby</dt><dd>${eligible.reduce((sum, device) => sum + device.watts, 0)} W · ${eligible.length} devices</dd></div>`
+    : `<div><dt>Current schedule</dt><dd>${escapeHtml(targets[0].detail)}</dd></div><div><dt>Requested schedule</dt><dd>10:30 PM tonight · after 9 PM peak</dd></div><div><dt>Cancel</dt><dd>Return to the previous schedule from Insights</dd></div>`;
+  $("#suggestionReviewNote").textContent = eligible.length ? index === 0 ? "Only the Flexible devices listed above will pause in this simulation. Restore now removes the suggestion pause. An active outage plan can still keep these devices paused until the simulated grid returns." : "This confirms tonight’s 10:30 PM schedule in the simulation. If already scheduled then, it does not produce additional savings. Critical and Important devices are unchanged." : "No eligible Flexible devices. Protected devices cannot be paused or rescheduled by this suggestion.";
+  $("#suggestionReviewEstimate").textContent = index === 0 ? `Potential ${item.savings}, assuming ${MODEL.standbyHoursPerDay} standby hours every day at the illustrative ${Math.round(plan().price * 1000) / 10}¢/kWh rate. This is not a measured result.` : "The monthly estimate assumes 15 runs × 1.2 kWh shifted from peak to off-peak. Existing off-peak schedules do not add savings; no wash cycle is started.";
+  $("#confirmSuggestion").disabled = !eligible.length;
+  suggestionDialog.showModal(); $("#cancelSuggestionReview").focus();
 }
-
+function restoreSuggestion(index) {
+  const item = suggestions[index];
+  item.applied = false;
+  if (index === 1 && dishwasherPreviousDetail !== null) { ports[0].devices[1].detail = dishwasherPreviousDetail; dishwasherPreviousDetail = null; }
+  const stillPaused = index === 0 && eligibleStandby().some(outageCut);
+  chartTransitionLabel = index === 0 ? "Suggestion restored" : "Schedule cancelled";
+  logEvent("savings", "rotate-ccw", index === 0 ? "Simulated standby pause removed" : "Simulated schedule change cancelled", stillPaused ? "Outage protection still keeps Flexible standby devices paused. Their previous draw returns when the simulated grid is restored." : "Previous simulated device state restored.", "app");
+  render(); showToast(stillPaused ? "Suggestion removed · outage plan still pauses these devices" : index === 0 ? "Simulated standby power restored" : "Previous schedule restored");
+}
+$("#closeSuggestionReview").addEventListener("click", () => suggestionDialog.close());
+$("#cancelSuggestionReview").addEventListener("click", () => suggestionDialog.close());
+suggestionDialog.addEventListener("close", () => { pendingSuggestion = null; });
+$("#suggestionReviewForm").addEventListener("submit", event => {
+  event.preventDefault();
+  const index = pendingSuggestion;
+  if (index === null) return;
+  const eligible = index === 0 ? eligibleStandby() : [ports[0].devices[1]].filter(device => device.level === "Flexible");
+  if (!eligible.length) { applySuggestion(index); return; }
+  const item = suggestions[index];
+  item.applied = true;
+  if (index === 1) { dishwasherPreviousDetail = ports[0].devices[1].detail; ports[0].devices[1].detail = "Confirmed for 10:30 PM tonight · simulated"; }
+  const watts = eligible.reduce((sum, device) => sum + device.watts, 0);
+  chartTransitionLabel = index === 0 ? "Standby pause applied" : "Schedule confirmed";
+  logEvent("savings", item.icon, index === 0 ? "Simulated standby pause approved" : "Simulated off-peak schedule confirmed", index === 0 ? `${eligible.map(device => device.name).join(" and ")} · ${watts} W eligible. Restore now removes this suggestion pause.` : "Tonight’s 10:30 PM schedule confirmed; cancel restores the prior schedule. No additional savings assumed for an already off-peak schedule.", "app");
+  suggestionDialog.close(); render(); showToast(index === 0 ? `Simulation: ${eligible.length} standby devices paused` : "Simulation: tonight’s schedule confirmed");
+});
 $("#applySuggestion").addEventListener("click", () => applySuggestion(0));
 suggestionList.addEventListener("click", event => {
   const button = event.target.closest(".suggestion-apply");
@@ -498,7 +606,7 @@ function setLevel(portIndex, deviceIndex, level) {
   const device = port.devices[deviceIndex];
   const before = device.level;
   device.level = level;
-  logEvent("protection", level === "Critical" ? "shield-check" : "shield-off", `${device.name} set to ${level}`, before === "Critical" ? "Protection removed after confirmation." : level === "Critical" ? "Wattwise will never switch it off." : `Changed from ${before}.`, "app");
+  logEvent("protection", level === "Critical" ? "shield-check" : "shield-off", `${device.name} set to ${level}`, before === "Critical" ? level === "Important" ? "Priority changed after confirmation; remains powered in the simulation." : "Flexible priority approved after confirmation." : level === "Critical" ? "Kept powered at every simulated level." : `Changed from ${before}.`, "app");
   render();
   showToast(`${device.name} on ${port.port} set to ${level.toLowerCase()}`);
 }
@@ -511,8 +619,9 @@ portList.addEventListener("change", event => {
   const level = event.target.value;
   if (device.level === "Critical" && level !== "Critical") {
     pendingChange = { portIndex, deviceIndex, level };
-    $("#confirmTitle").textContent = `Remove protection from ${device.name}?`;
-    $("#confirmText").textContent = `${device.name} will no longer be guaranteed power during an outage${level === "Flexible" ? " and may be paused to save energy" : ""}.`;
+    $("#confirmTitle").textContent = `Change priority for ${device.name}?`;
+    $("#confirmOk").textContent = `Change to ${level}`;
+    $("#confirmText").textContent = level === "Flexible" ? `${device.name} may be paused in the simulation’s outage plan or an approved standby suggestion. Keep medical and safety devices protected.` : `${device.name} will be Important and remain powered during simulated outages. This changes its label, not its current protection.`;
     event.target.value = device.level; // stays Critical until confirmed
     confirmDialog.showModal();
     $("#confirmCancel").focus();
@@ -574,8 +683,9 @@ deviceForm.addEventListener("submit", event => {
     render();
     if (removingProtection) {
       pendingChange = change;
-      $("#confirmTitle").textContent = `Remove protection from ${device.name}?`;
-      $("#confirmText").textContent = `${device.name} will no longer be guaranteed power during an outage${level === "Flexible" ? " and may be paused to save energy" : ""}.`;
+      $("#confirmTitle").textContent = `Change priority for ${device.name}?`;
+    $("#confirmOk").textContent = `Change to ${level}`;
+      $("#confirmText").textContent = level === "Flexible" ? `${device.name} may be paused in the simulation’s outage plan or an approved standby suggestion. Keep medical and safety devices protected.` : `${device.name} will be Important and remain powered during simulated outages. This changes its label, not its current protection.`;
       confirmDialog.showModal();
       $("#confirmCancel").focus();
     } else {
@@ -768,12 +878,13 @@ function openGridDialog() {
     ["Plan", plan().label]
   ];
   $("#gridFacts").innerHTML = facts.map(([k, v]) => `<div><span>${k}</span><strong>${escapeHtml(v)}</strong></div>`).join("");
-  $("#gridDialogAction").textContent = outage ? "Restore grid power" : "Simulate an outage";
+  $("#gridDialogAction").textContent = outage ? "Restore simulated grid" : "Simulate an outage";
   $("#outagePicker").hidden = outage;
   $("#outageHours").value = String(state.outageHours);
   gridDialog.showModal();
 }
 $("#gridCard").addEventListener("click", openGridDialog);
+$("#outageDetails").addEventListener("click", openGridDialog);
 $("#closeGridDialog").addEventListener("click", () => gridDialog.close());
 $("#gridDialogCancel").addEventListener("click", () => gridDialog.close());
 $("#gridForm").addEventListener("submit", event => {
@@ -788,7 +899,7 @@ function notificationItems() {
   const items = [];
   if (state.mode === "outage") items.push({ id: "outage", alert: true, icon: "battery-warning", title: "Grid outage", text: `Batteries are running ${allDevices().filter(isProtected).length} protected devices for about ${hoursLabel(availableKWh() / protectedKW())}.`, go: "overview" });
   if (!suggestions[0].applied) items.push({ id: "standby", icon: "power", title: "Standby devices idle for 3 hours", text: `Your TV and game console are drawing 21 W. Pausing them saves about ${suggestions[0].savings.replace(" / year", "")} a year.`, go: "insights" });
-  else items.push({ id: "standby-done", icon: "check", title: "Standby devices paused", text: "Your TV and game console will power back on when you use them.", go: "ports" });
+  else items.push({ id: "standby-done", icon: "check", title: "Standby devices paused", text: "Use Restore now in Insights or Overview to remove this suggestion pause. An outage plan can keep flexible standby paused.", go: "ports" });
   items.push(suggestions[1].applied
     ? { id: "dish-done", icon: "clock-3", title: "Dishwasher moved to 10:30 PM", text: "It runs after the evening peak tonight.", go: "ports" }
     : { id: "dish", icon: "clock-3", title: "Dishwasher timing", text: "Running it after 9 PM avoids the evening peak.", go: "insights" });
@@ -831,6 +942,8 @@ if (window.lucide) lucide.createIcons();
 function resetDemoState() {
   ports.splice(0, ports.length, ...JSON.parse(JSON.stringify(INITIAL_PORTS)));
   suggestions.forEach(item => { item.applied = false; });
+  dishwasherPreviousDetail = null;
+  chartTransitionLabel = "";
   readNotifications.clear();
   $("#chatLog").innerHTML = INITIAL_CHAT;
   liveActivity.length = 0;
@@ -904,3 +1017,6 @@ $("#activityFilters").addEventListener("click", event => {
   document.querySelectorAll("#activityFilters button").forEach(b => b.classList.toggle("active", b === button));
   renderActivity();
 });
+
+// Render after all review/chart bindings are initialized.
+render();

@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="info.css">
 </head>
 <body>
+  <div class="info-simulation"><strong>SIMULATION · PREVIEW V2</strong><span>Illustrative household model · no live measurements or hardware controls</span></div>
   <header class="site-header">
     <a class="info-brand" href="#top"><span><img src="assets/wattwise-logo.png" alt=""></span>Wattwise</a>
     <nav aria-label="Information page"><a href="#approach">Approach</a><a href="#device-negotiation">Device negotiation</a><a href="#prototype">Prototype</a></nav>
@@ -26,16 +27,16 @@
       </div>
       <div class="runtime-card" aria-label="Illustrative backup runtime comparison">
         <div class="runtime-top"><span>Illustrative 13.5 kWh battery</span><strong>One battery, two outcomes</strong></div>
-        <div class="runtime-row"><div><span>Whole home</span><strong>11 h</strong></div><div class="runtime-track"><i style="width:18%"></i></div></div>
+        <div class="runtime-row"><div><span>Level 3 · on battery</span><strong>11 h</strong></div><div class="runtime-track"><i style="width:18%"></i></div></div>
         <div class="runtime-row emphasized"><div><span>Protected essentials</span><strong>60 h</strong></div><div class="runtime-track"><i style="width:100%"></i></div></div>
-        <p>Demo estimate using 90% usable capacity. Actual runtime depends on the battery, devices, and conditions.</p>
+        <p>Model assumptions: 13.5 kWh × 82% charge × 90% deliverable energy ≈ 9.96 kWh. Level 3: 879 W ≈ 11.3 h; protected Critical + Important devices: 164 W ≈ 60.8 h. These are illustrative estimates, not measured results or guarantees.</p>
       </div>
     </section>
 
     <section class="problem-band">
-      <div><strong>23%</strong><span>of household electricity was attributed to idle load in a large Northern California study.</span></div>
+      <div><strong>21 W</strong><span>of standby draw in this preset home: TV 12 W + game console 9 W. Actual homes will vary.</span></div>
       <div><strong>0</strong><span>critical devices may be automatically switched off by Wattwise policy.</span></div>
-      <div><strong>5</strong><span>small, reversible levels between normal operation and critical-only backup.</span></div>
+      <div><strong>5</strong><span>small, reversible levels between normal operation and protected-device backup.</span></div>
     </section>
 
     <section class="content-section" id="approach">
@@ -45,7 +46,7 @@
         <article><span>1</span><div><small>EVERY DAY</small><h3>Cut standby waste</h3><p>Pause household-approved phantom loads.</p></div></article>
         <article><span>2</span><div><small>GRID STRESS</small><h3>Defer what can wait</h3><p>Reschedule charging, dishwashing, and other flexible work.</p></div></article>
         <article><span>3</span><div><small>OUTAGE</small><h3>Coordinate limited power</h3><p>Devices request what they need and flexible work yields to higher priorities.</p></div></article>
-        <article><span>4</span><div><small>LONG OUTAGE</small><h3>Critical only</h3><p>Keep medical, cooling, connectivity, and safety loads powered.</p></div></article>
+        <article><span>4</span><div><small>LONG OUTAGE</small><h3>Protected only</h3><p>Keep medical, cooling, connectivity, and safety loads powered.</p></div></article>
       </div>
     </section>
 
@@ -72,7 +73,7 @@
         <article><i data-lucide="smartphone"></i><span>03</span><h3>Resident control</h3><p>Residents protect important devices, approve flexibility, and see why each decision was made.</p></article>
         <article><i data-lucide="shield-check"></i><span>04</span><h3>Safety policy</h3><p>Critical loads are protected locally even if communication or higher-level logic fails.</p></article>
       </div>
-      <div class="boundary"><strong>MVP boundary</strong><p>The current prototype uses LEDs, preset device profiles, and ESP-NOW to visualize request and grant outcomes. A next version would measure real loads and exchange live power requests with controllable devices.</p></div>
+      <div class="boundary"><strong>Preview boundary</strong><p>This browser preview runs entirely on preset device profiles and simulated events. Discovery percentages illustrate matching outcomes; they are not measured classifier accuracy. Savings use rounded example tariffs and usage assumptions, not current utility quotes. Hardware negotiation is a proposed prototype architecture and is not connected to these controls.</p></div>
     </section>
   </main>
 

@@ -560,3 +560,43 @@ button.grid-card:hover { background: rgba(255,255,255,.11); }
   .period-toggle { align-self: stretch; }
   .period-toggle button { flex: 1; }
 }
+
+/* Preview v2: transparent simulation, reversible controls and readable power history. */
+[hidden] { display:none !important; }
+.simulation-banner { display:flex; flex-wrap:wrap; align-items:center; gap:7px 14px; margin:0 0 18px; padding:10px 13px; border:1px solid #d2dfce; border-radius:10px; background:#eaf0e5; color:#52614e; font-size:11px; line-height:1.4; }
+.simulation-tag { font-size:10px; font-weight:700; letter-spacing:.06em; color:#355642; }
+.live-pill { white-space:nowrap; }
+.usage-chart-heading { margin-top:22px; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:9px; }
+.usage-chart-heading>span { color:#67776b; font-size:9px; letter-spacing:.07em; }
+.usage-chart-heading b { display:block; margin-top:4px; color:#78857b; font-size:10px; font-weight:400; letter-spacing:0; }
+.usage-legend { display:flex; gap:12px; font-size:10px; color:#68756b; }
+.usage-legend span { display:flex; align-items:center; gap:5px; }
+.usage-legend i { width:15px; height:0; border-top:2px solid var(--green); }
+.usage-legend i.usual-key { border-top:2px dashed #9da99e; }
+.usage-chart { height:178px; margin-top:18px; padding-right:8px; }
+.usage-chart .usual-line { fill:none; stroke:#9da99e; stroke-width:2; stroke-dasharray:5 5; vector-effect:non-scaling-stroke; }
+.usage-chart .chart-point { fill:transparent; stroke:transparent; cursor:crosshair; }
+.usage-chart .current-point { fill:var(--card); stroke:var(--green); stroke-width:3; }
+.usage-chart .chart-point:hover,.usage-chart .chart-point:focus { fill:var(--card); stroke:var(--green); stroke-width:3; outline:none; }
+.chart-transition { stroke:#ab7b3c; stroke-width:1; stroke-dasharray:3 3; vector-effect:non-scaling-stroke; }
+.usage-readout { display:flex; flex-wrap:wrap; gap:6px 12px; min-height:34px; margin-top:12px; padding:9px 11px; border-radius:9px; background:#f0f4ed; color:#5b6a5e; font-size:10px; line-height:1.6; }
+.usage-readout strong { color:#285b40; }.usage-readout small { font-weight:400; }.usage-readout .chart-saving { margin-left:auto; color:#285b40; font-weight:600; }
+.chart-context,.estimate-note { font-size:10px; line-height:1.55; color:#6d796f; }
+.main-metric>.chart-context { margin:10px 0 0; }.bill-card>.estimate-note { margin:18px 0 0; }
+.chart-x,.chart-y { color:#6e7b71; }
+.outage-summary { background:#f2f5ec; border-color:#ccd9c1; }
+.outage-runtime { margin:19px 0 9px; color:#2b5138; font:400 23px/1.25 "Archivo Black",Arial,sans-serif; letter-spacing:-.05em; }
+.outage-covered,.outage-shortfall { margin:0 0 14px; font-size:12px; line-height:1.5; }.outage-covered { color:#426444; }.outage-shortfall { color:#925e24; }
+.outage-facts { margin:0; padding:13px 0; border-block:1px solid #d9e1d1; font-size:11px; }.outage-facts>div { display:flex; justify-content:space-between; gap:12px; margin:7px 0; }.outage-facts dt { color:#6d7968; }.outage-facts dd { margin:0; font-weight:600; text-align:right; }
+.outage-device-list { margin-top:16px; font-size:11px; }.outage-device-list strong { color:#365039; }.outage-device-list p { margin:5px 0 13px; line-height:1.55; color:#687563; }
+.outage-summary .button { margin-top:7px; width:100%; font-size:10px; }
+.device-view-bar { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; }.device-view-bar>span { font-size:11px; color:#6d786f; }
+.priority-guide { display:grid; grid-template-columns:1fr 1fr 1.6fr; gap:14px; margin-bottom:19px; padding:14px 16px; border:1px solid #dce3d8; border-radius:13px; background:#eef2ea; }.priority-guide p { margin:0; color:#677565; font-size:11px; line-height:1.55; }.priority-guide strong { display:block; margin-bottom:3px; color:#3c513e; }
+.device-behavior { display:block; margin-top:5px; max-width:390px; font-size:10px; line-height:1.4; color:#66785f; }.nested-device { min-height:84px; }.nested-device-copy p { font-size:10px; }
+.suggestion-card>p.suggestion-state { min-height:0; font-size:11px; color:#54704d; }
+.review-devices { padding:0; margin:10px 0 18px; list-style:none; }.review-devices li { padding:13px 0; border-bottom:1px solid #e1e6dd; display:flex; justify-content:space-between; align-items:center; gap:14px; font-size:12px; }.review-devices strong,.review-devices small { display:block; }.review-devices small { margin-top:4px; color:#68776c; font-size:10px; }.review-devices b { text-align:right; font-size:10px; }.review-devices .eligible { color:#356b48; }.review-devices .excluded { color:#8a653d; }
+.review-facts { margin:0 0 16px; font-size:12px; }.review-facts>div { display:grid; grid-template-columns:110px 1fr; gap:12px; margin:11px 0; }.review-facts dt { color:#6d786f; }.review-facts dd { margin:0; line-height:1.4; }
+.suggestion-dialog .dialog-note { display:block; font-size:11px; line-height:1.65; }.suggestion-dialog { max-height:90vh; overflow-y:auto; }.data-source-note { padding:11px 14px; border-radius:9px; background:#eaf0e5; color:#5d7158; font-size:11px; line-height:1.5; }
+.button:disabled { opacity:.5; cursor:not-allowed; }
+@media(max-width:700px){.priority-guide{grid-template-columns:1fr}.simulation-banner{font-size:10px}.usage-chart{height:164px}.usage-legend{font-size:9px}.usage-readout .chart-saving{margin-left:0}.outage-runtime{font-size:23px}.device-behavior{max-width:none}.top-actions{gap:7px}.live-pill{font-size:9px;padding:6px 8px}.review-facts>div{grid-template-columns:90px 1fr}}
+@media(prefers-reduced-motion:reduce){.usage-chart *{transition:none!important}}
