@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#2f443a">
+  <title>How Wattwise Works</title>
+  <link rel="icon" type="image/png" href="assets/wattwise-logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="info.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="info-brand" href="#top"><span><img src="assets/wattwise-logo.png" alt=""></span>Wattwise</a>
+    <nav aria-label="Information page"><a href="#approach">Approach</a><a href="#smart-batteries">Smart batteries</a><a href="#prototype">Prototype</a></nav>
+    <a class="app-button" href="index.html">Open the app <i data-lucide="arrow-right"></i></a>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="kicker">HOME ENERGY RESILIENCE</p>
+        <h1>Use less every day.<br><em>Keep what matters on.</em></h1>
+        <p class="hero-text">Wattwise maps the devices a home can safely pause, then uses that knowledge to stretch backup power during an outage—without treating every load the same.</p>
+        <div class="hero-actions"><a class="primary-link" href="index.html">View the household app</a><a class="text-link" href="#approach">See the approach <i data-lucide="arrow-down"></i></a></div>
+      </div>
+      <div class="runtime-card" aria-label="Illustrative backup runtime comparison">
+        <div class="runtime-top"><span>Illustrative 13.5 kWh battery</span><strong>One battery, two outcomes</strong></div>
+        <div class="runtime-row"><div><span>Whole home</span><strong>11 h</strong></div><div class="runtime-track"><i style="width:18%"></i></div></div>
+        <div class="runtime-row emphasized"><div><span>Protected essentials</span><strong>60 h</strong></div><div class="runtime-track"><i style="width:100%"></i></div></div>
+        <p>Demo estimate using 90% usable capacity. Actual runtime depends on the battery, devices, and conditions.</p>
+      </div>
+    </section>
+
+    <section class="problem-band">
+      <div><strong>23%</strong><span>of household electricity was attributed to idle load in a large Northern California study.</span></div>
+      <div><strong>0</strong><span>critical devices may be automatically switched off by Wattwise policy.</span></div>
+      <div><strong>5</strong><span>small, reversible levels between normal operation and critical-only backup.</span></div>
+    </section>
+
+    <section class="content-section" id="approach">
+      <div class="section-intro"><p class="kicker">THE APPROACH</p><h2>A ladder, not a cliff.</h2><p>Wattwise makes the smallest useful change first. Each level is visible and reversible; critical devices stay outside the automatic shutoff ladder.</p></div>
+      <div class="ladder">
+        <article><span>0</span><div><small>EVERY DAY</small><h3>Normal</h3><p>Measure the home and learn what is actually in use.</p></div></article>
+        <article><span>1</span><div><small>EVERY DAY</small><h3>Cut standby waste</h3><p>Pause household-approved phantom loads.</p></div></article>
+        <article><span>2</span><div><small>GRID STRESS</small><h3>Defer what can wait</h3><p>Reschedule charging, dishwashing, and other flexible work.</p></div></article>
+        <article><span>3</span><div><small>OUTAGE</small><h3>Battery takeover</h3><p>Protect the reserve and continuously recalculate runtime.</p></div></article>
+        <article><span>4</span><div><small>LONG OUTAGE</small><h3>Critical only</h3><p>Keep medical, cooling, connectivity, and safety loads powered.</p></div></article>
+      </div>
+    </section>
+
+    <section class="split-section" id="smart-batteries">
+      <div class="signal-visual" aria-label="Three batteries sharing status through a DC bus voltage signal">
+        <div class="signal-line"><span></span><span></span><span></span></div>
+        <div class="battery-nodes"><div><i data-lucide="battery-charging"></i><b>82%</b><small>Ready</small></div><div><i data-lucide="battery-medium"></i><b>64%</b><small>Reserve</small></div><div><i data-lucide="battery-warning"></i><b>31%</b><small>Attention</small></div></div>
+        <p>Small, controlled voltage shifts carry a status signal across the shared DC bus.</p>
+      </div>
+      <div class="signal-copy">
+        <p class="kicker">SMART BATTERIES</p>
+        <h2>Status can travel with the power.</h2>
+        <p>In the research direction behind Wattwise, a battery converter can encode a small, controlled status signal in the shared DC-bus voltage. Other units already measuring that bus can detect the change and infer a state such as ready, reserve, or attention—without depending on a separate radio message.</p>
+        <p>This family of techniques is often described as <strong>bus-voltage signaling</strong> or <strong>power talk</strong>. It is a research concept for future smart-battery coordination, not a claim about the current LED prototype.</p>
+        <div class="research-links"><a href="https://arxiv.org/abs/1504.03016" target="_blank" rel="noreferrer">Power Talk research <i data-lucide="external-link"></i></a><a href="https://ieeexplore.ieee.org/document/11345703/" target="_blank" rel="noreferrer">State-of-grid SoC signaling <i data-lucide="external-link"></i></a></div>
+      </div>
+    </section>
+
+    <section class="content-section" id="prototype">
+      <div class="section-intro"><p class="kicker">THE DEMO</p><h2>Three homes on a table.</h2><p>The prototype demonstrates the decision flow without pretending to be a grid-connected battery product.</p></div>
+      <div class="architecture">
+        <article><i data-lucide="house-plug"></i><span>01</span><h3>Smart ports</h3><p>ESP32 nodes represent ports and the devices connected to each one.</p></article>
+        <article><i data-lucide="radio-tower"></i><span>02</span><h3>Local network</h3><p>ESP-NOW carries telemetry while one gateway hosts a local Wi-Fi access point.</p></article>
+        <article><i data-lucide="smartphone"></i><span>03</span><h3>Household app</h3><p>Residents set criticality, review suggestions, and see savings and backup runtime.</p></article>
+        <article><i data-lucide="shield-check"></i><span>04</span><h3>Safety policy</h3><p>Critical loads are protected locally even if communication or higher-level logic fails.</p></article>
+      </div>
+      <div class="boundary"><strong>Clear boundary</strong><p>The current demo uses LEDs, simulated wattage, and ESP-NOW. Voltage-based battery status signaling is the research-backed next-step concept.</p></div>
+    </section>
+  </main>
+
+  <footer><div><strong>Wattwise</strong><span>Project information</span></div><a href="index.html">Open household app <i data-lucide="arrow-right"></i></a></footer>
+  <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+  <script>if (window.lucide) lucide.createIcons();</script>
+</body>
+</html>

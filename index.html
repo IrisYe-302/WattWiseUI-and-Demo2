@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f3f6ef">
+  <title>Wattwise Home</title>
+  <link rel="icon" type="image/png" href="assets/wattwise-logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="side-nav" aria-label="Primary navigation">
+      <a class="brand" href="#overview" aria-label="Wattwise home">
+        <span class="brand-mark" aria-hidden="true"><img src="assets/wattwise-logo.png" alt=""></span>
+        <span>Wattwise</span>
+      </a>
+
+      <nav>
+        <a class="nav-link active" href="#overview" data-section="overview"><i data-lucide="layout-dashboard"></i><span>Overview</span></a>
+        <a class="nav-link" href="#ports" data-section="ports"><i data-lucide="plug-zap"></i><span>Ports</span><b>4</b></a>
+        <a class="nav-link" href="#insights" data-section="insights"><i data-lucide="sparkles"></i><span>Insights</span><b>2</b></a>
+        <a class="nav-link" href="#history" data-section="history"><i data-lucide="chart-no-axes-combined"></i><span>History</span></a>
+      </nav>
+
+      <div class="grid-card">
+        <span class="status-dot"></span>
+        <div><strong>Grid connected</strong><small>Home is protected</small></div>
+        <i data-lucide="chevron-right"></i>
+      </div>
+      <div class="side-footer">
+        <button class="icon-button" aria-label="Open settings"><i data-lucide="settings"></i></button>
+        <div class="avatar">IM</div>
+        <div><strong>Iris’s home</strong><small>Owner</small></div>
+      </div>
+    </aside>
+
+    <main>
+      <header class="topbar">
+        <span class="mobile-brand-mark"><img src="assets/wattwise-logo.png" alt="Wattwise"></span>
+        <div>
+          <p class="eyebrow">SATURDAY, OCTOBER 17</p>
+          <h1>Good morning, Iris</h1>
+        </div>
+        <div class="top-actions">
+          <div class="live-pill"><span></span>Live</div>
+          <a class="icon-button info-link" href="info.html" aria-label="How Wattwise works"><i data-lucide="info"></i></a>
+          <button class="icon-button notification-button" aria-label="Notifications"><i data-lucide="bell"></i><span></span></button>
+          <button class="assistant-open mobile-only" aria-label="Open energy assistant"><i data-lucide="message-circle"></i></button>
+        </div>
+      </header>
+
+      <section class="dashboard-section active" id="overview" aria-labelledby="overview-title">
+        <h2 id="overview-title" class="sr-only">Home energy overview</h2>
+        <div class="mode-banner" id="modeBanner">
+          <div class="mode-icon"><i data-lucide="leaf"></i></div>
+          <div class="mode-copy">
+            <p class="eyebrow">HOME MODE</p>
+            <h2 id="modeTitle">Smart saver</h2>
+            <p id="modeDescription">Non-essential standby loads pause automatically when nobody is using them.</p>
+          </div>
+          <div class="mode-control" role="group" aria-label="Energy mode">
+            <button data-mode="normal">Normal</button>
+            <button class="active" data-mode="saver">Saver</button>
+            <button data-mode="outage">Outage</button>
+          </div>
+        </div>
+
+        <a class="battery-status" href="info.html#smart-batteries" aria-label="Learn how smart battery status signaling works">
+          <div class="battery-status-icon"><i data-lucide="battery-charging"></i></div>
+          <div class="battery-status-copy"><p class="eyebrow">SMART BATTERY NETWORK</p><h2>All batteries reporting</h2><p>Three batteries are sharing reserve and health status through the DC bus voltage signal.</p></div>
+          <div class="battery-status-stats"><span><small>Reserve</small><strong>82%</strong></span><span><small>Protected runtime</small><strong>9h 40m</strong></span><span><small>Status channel</small><strong>Bus voltage</strong></span></div>
+          <i class="battery-status-arrow" data-lucide="arrow-up-right"></i>
+        </a>
+
+        <div class="metric-grid">
+          <article class="metric-card main-metric">
+            <div class="metric-heading"><span>Using right now</span><div class="trend down"><i data-lucide="trending-down"></i> 18%</div></div>
+            <div class="metric-value"><strong id="livePower">1.8</strong><span>kW</span></div>
+            <p>0.4 kW lower than your usual Saturday</p>
+            <div class="usage-chart" aria-label="Power usage over the last 8 hours">
+              <div class="chart-y"><span>3 kW</span><span>2 kW</span><span>1 kW</span><span>0</span></div>
+              <svg viewBox="0 0 560 166" preserveAspectRatio="none" role="img" aria-label="Usage peaked at 2.8 kilowatts around 9 AM and is now 1.8 kilowatts">
+                <defs><linearGradient id="area" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#296b4e" stop-opacity=".23"/><stop offset="1" stop-color="#296b4e" stop-opacity=".01"/></linearGradient></defs>
+                <g class="grid-lines"><line x1="0" y1="10" x2="560" y2="10"/><line x1="0" y1="58" x2="560" y2="58"/><line x1="0" y1="106" x2="560" y2="106"/><line x1="0" y1="154" x2="560" y2="154"/></g>
+                <path class="area" d="M0 120 C35 112 58 117 91 99 S142 86 176 105 S237 116 267 87 S311 66 344 54 S397 13 432 39 S474 84 505 75 S540 74 560 67 L560 154 L0 154Z"/>
+                <path class="line" d="M0 120 C35 112 58 117 91 99 S142 86 176 105 S237 116 267 87 S311 66 344 54 S397 13 432 39 S474 84 505 75 S540 74 560 67"/>
+                <circle cx="560" cy="67" r="5"/>
+              </svg>
+              <div class="chart-x"><span>4 AM</span><span>6 AM</span><span>8 AM</span><span>10 AM</span><span>Now</span></div>
+            </div>
+          </article>
+
+          <article class="metric-card bill-card">
+            <div class="metric-heading"><span>Projected this month</span><i data-lucide="receipt-text"></i></div>
+            <div class="bill-total"><strong>$84</strong><span>of $105 budget</span></div>
+            <div class="progress-track"><span style="width:80%"></span></div>
+            <div class="bill-row"><span>Energy used</span><strong>218 kWh</strong></div>
+            <div class="bill-row"><span>Saved by Wattwise</span><strong class="positive">$12.40</strong></div>
+            <div class="bill-row"><span>Month ends</span><strong>14 days</strong></div>
+          </article>
+        </div>
+
+        <div class="section-heading">
+          <div><p class="eyebrow">LIVE LOADS</p><h2>What’s using power</h2></div>
+          <a href="#ports" data-nav-to="ports">Manage ports <i data-lucide="arrow-right"></i></a>
+        </div>
+
+        <div class="device-strip">
+          <article class="device-card critical">
+            <div class="device-icon"><i data-lucide="refrigerator"></i></div>
+            <div class="device-info"><div><h3>Kitchen fridge</h3><span class="criticality high"><i data-lucide="shield-check"></i> Critical</span></div><p>Always protected</p></div>
+            <strong>320 <small>W</small></strong>
+          </article>
+          <article class="device-card">
+            <div class="device-icon"><i data-lucide="router"></i></div>
+            <div class="device-info"><div><h3>Wi-Fi router</h3><span class="criticality medium">Important</span></div><p>Active · 8 devices</p></div>
+            <strong>18 <small>W</small></strong>
+          </article>
+          <article class="device-card muted-device">
+            <div class="device-icon"><i data-lucide="tv"></i></div>
+            <div class="device-info"><div><h3>Living room TV</h3><span class="criticality low">Flexible</span></div><p>Standby · 3h 24m</p></div>
+            <strong>12 <small>W</small></strong>
+          </article>
+        </div>
+
+        <section class="insight-card" id="quickInsight">
+          <div class="insight-icon"><i data-lucide="sparkles"></i></div>
+          <div class="insight-copy"><span class="new-label">NEW SUGGESTION</span><h2>Save 42 kWh a year on standby power</h2><p>Your TV and game console have been idle for over 3 hours. Wattwise can pause both until you need them again.</p><div class="savings"><span><strong>21 W</strong> right now</span><span><strong>$8.30</strong> per year</span></div></div>
+          <div class="insight-actions"><button class="button primary" id="applySuggestion">Pause standby devices</button><button class="button ghost ask-assistant">Ask about this</button></div>
+        </section>
+      </section>
+
+      <section class="dashboard-section" id="ports" aria-labelledby="ports-title">
+        <div class="page-heading"><div><p class="eyebrow">4 REGISTERED PORTS</p><h2 id="ports-title">Smart ports</h2><p>Each port groups the devices connected through it.</p></div><button class="button secondary" id="registerPort"><i data-lucide="plus"></i>Register port</button></div>
+        <div class="device-list" id="portList"></div>
+      </section>
+
+      <section class="dashboard-section" id="insights" aria-labelledby="insights-title">
+        <div class="page-heading"><div><p class="eyebrow">2 READY FOR REVIEW</p><h2 id="insights-title">Energy insights</h2><p>Small changes, ranked by impact and comfort.</p></div></div>
+        <div class="suggestion-list" id="suggestionList"></div>
+      </section>
+
+      <section class="dashboard-section" id="history" aria-labelledby="history-title">
+        <div class="page-heading"><div><p class="eyebrow">LAST 30 DAYS</p><h2 id="history-title">Your progress</h2><p>You’ve used 11% less energy than last month.</p></div></div>
+        <div class="history-hero"><div><span>Energy saved</span><strong>38.4 <small>kWh</small></strong><p>Enough to run your refrigerator for 16 days.</p></div><div class="ring"><span>11%</span><small>less</small></div></div>
+        <div class="weekly-bars" aria-label="Weekly energy use comparison"><div><span style="height:68%"></span><b style="height:54%"></b><small>Sep 21</small></div><div><span style="height:82%"></span><b style="height:65%"></b><small>Sep 28</small></div><div><span style="height:72%"></span><b style="height:60%"></b><small>Oct 5</small></div><div><span style="height:66%"></span><b style="height:49%"></b><small>Oct 12</small></div></div>
+        <div class="chart-legend"><span><i class="last-month"></i>Last month</span><span><i class="this-month"></i>This month</span></div>
+      </section>
+    </main>
+
+    <dialog class="device-dialog" id="deviceDialog" aria-labelledby="deviceDialogTitle">
+      <form method="dialog" id="deviceForm">
+        <div class="dialog-heading">
+          <div><p class="eyebrow" id="dialogPortName">PORT</p><h2 id="deviceDialogTitle">Add a device</h2></div>
+          <button type="button" class="icon-button" id="closeDeviceDialog" aria-label="Close"><i data-lucide="x"></i></button>
+        </div>
+        <label class="field-label" for="deviceName">Device name</label>
+        <input class="text-input" id="deviceName" name="deviceName" placeholder="e.g. Desk lamp" required>
+        <label class="field-label" for="deviceCriticality">Criticality</label>
+        <select class="text-input" id="deviceCriticality" name="deviceCriticality">
+          <option>Flexible</option>
+          <option>Important</option>
+          <option>Critical</option>
+        </select>
+        <div class="dialog-note"><i data-lucide="shield-check"></i><span>Critical devices are always protected. Flexible devices can participate in energy-saving suggestions.</span></div>
+        <div class="dialog-actions"><button type="button" class="button secondary" id="cancelDeviceDialog">Cancel</button><button type="submit" class="button save-device">Save device</button></div>
+      </form>
+    </dialog>
+
+    <aside class="assistant-panel" aria-label="Energy assistant" aria-hidden="true">
+      <header>
+        <div class="assistant-avatar"><i data-lucide="sparkles"></i><span></span></div>
+        <div><strong>Energy assistant</strong><small>Wattwise guidance</small></div>
+        <button class="icon-button assistant-close" aria-label="Close assistant"><i data-lucide="x"></i></button>
+      </header>
+      <div class="assistant-context"><i data-lucide="shield-check"></i><span>Suggestions are informational. You approve every device change.</span></div>
+      <div class="chat-log" id="chatLog" aria-live="polite">
+        <div class="message assistant-message"><p>Morning, Iris. Your home is using <strong>18% less</strong> than usual.</p><p>I found one easy saving: your TV and game console are still drawing standby power.</p><span>Just now</span></div>
+        <div class="suggested-prompts">
+          <button>What can I safely turn off?</button>
+          <button>How long would backup power last?</button>
+          <button>Explain my critical devices</button>
+        </div>
+      </div>
+      <form class="chat-form" id="chatForm">
+        <label class="sr-only" for="chatInput">Message energy assistant</label>
+        <input id="chatInput" autocomplete="off" placeholder="Ask about your energy…">
+        <button type="submit" aria-label="Send message"><i data-lucide="arrow-up"></i></button>
+      </form>
+      <p class="prototype-note">Prototype assistant · no changes without approval</p>
+    </aside>
+
+    <nav class="bottom-nav" aria-label="Mobile navigation">
+      <a class="active" href="#overview" data-section="overview"><i data-lucide="layout-dashboard"></i><span>Home</span></a>
+      <a href="#ports" data-section="ports"><i data-lucide="plug-zap"></i><span>Ports</span></a>
+      <button class="assistant-open" aria-label="Open energy assistant"><span><i data-lucide="message-circle"></i></span><small>Assistant</small></button>
+      <a href="#insights" data-section="insights"><i data-lucide="sparkles"></i><span>Insights</span></a>
+      <a href="#history" data-section="history"><i data-lucide="chart-no-axes-combined"></i><span>History</span></a>
+    </nav>
+  </div>
+  <div class="scrim" hidden></div>
+  <div class="toast" role="status" aria-live="polite"></div>
+
+  <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

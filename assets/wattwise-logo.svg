@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title id="title">Wattwise</title>
+  <desc id="desc">A house and letter W surrounding a leaf with a subtle lightning-shaped vein.</desc>
+  <g fill="none" stroke="#2f443a" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M35 105 128 34l93 71" stroke-width="27"/>
+    <path d="M191 75V45" stroke-width="23"/>
+    <path d="m45 142 29 72c4 10 13 11 21 2l33-40 33 40c8 9 17 8 21-2l29-72" stroke-width="31"/>
+  </g>
+  <path fill="#aebba5" d="M126 164c-8-27-2-50 20-66 14-11 31-15 48-13-1 20-8 39-23 54-13 13-29 21-45 25Z"/>
+  <path fill="#2f443a" d="m169 100-25 30 13-3-23 29 35-37-14 4 20-23Z"/>
+</svg>
