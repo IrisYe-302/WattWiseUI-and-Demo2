@@ -21,7 +21,7 @@
 
       <nav>
         <a class="nav-link active" href="#overview" data-section="overview"><i data-lucide="layout-dashboard"></i><span>Overview</span></a>
-        <a class="nav-link" href="#ports" data-section="ports"><i data-lucide="plug-zap"></i><span>Ports</span><b>4</b></a>
+        <a class="nav-link" href="#ports" data-section="ports"><i data-lucide="plug-zap"></i><span>Ports</span><b>3</b></a>
         <a class="nav-link" href="#insights" data-section="insights"><i data-lucide="sparkles"></i><span>Insights</span><b>2</b></a>
         <a class="nav-link" href="#history" data-section="history"><i data-lucide="chart-no-axes-combined"></i><span>History</span></a>
       </nav>
@@ -135,7 +135,54 @@
       </section>
 
       <section class="dashboard-section" id="ports" aria-labelledby="ports-title">
-        <div class="page-heading"><div><p class="eyebrow">4 REGISTERED PORTS</p><h2 id="ports-title">Smart ports</h2><p>Each port groups the devices connected through it.</p></div><button class="button secondary" id="registerPort"><i data-lucide="plus"></i>Register port</button></div>
+        <div class="page-heading"><div><p class="eyebrow">3 REGISTERED PORTS</p><h2 id="ports-title">Smart ports</h2><p>Each port groups the devices connected through it.</p></div><button class="button secondary" id="registerPort"><i data-lucide="plus"></i>Register port</button></div>
+
+        <section class="discovery-card" id="discoveryCard" aria-labelledby="discoveryTitle">
+          <div class="discovery-intro">
+            <div class="discovery-icon"><i data-lucide="scan-search"></i></div>
+            <div>
+              <span class="demo-label">SMART DISCOVERY</span>
+              <h3 id="discoveryTitle">Discover what’s connected</h3>
+              <p>Wattwise combines network discovery with power signatures to identify loads and determine which ones can respond during an outage.</p>
+            </div>
+            <button class="button discovery-button" id="startDiscovery"><i data-lucide="sparkles"></i><span>Scan home</span></button>
+          </div>
+
+          <div class="discovery-progress" id="discoveryProgress" hidden aria-live="polite">
+            <div class="scan-orbit"><i data-lucide="radio-tower"></i></div>
+            <div><strong id="scanStatus">Listening for smart devices…</strong><span id="scanDetail">Checking Matter, Wi-Fi and recent energy patterns</span></div>
+            <div class="scan-track"><span id="scanBar"></span></div>
+          </div>
+
+          <div class="discovery-results" id="discoveryResults" hidden>
+            <div class="discovery-summary">
+              <div><i data-lucide="circle-check"></i><span><strong>3 loads identified</strong><small>2 controllable · 1 inferred</small></span></div>
+              <span class="simulation-pill">Discovery complete</span>
+            </div>
+            <div class="discovered-loads">
+              <article class="discovered-load">
+                <div class="load-icon smart"><i data-lucide="briefcase-medical"></i></div>
+                <div class="load-copy"><h4>Medical cooler</h4><p>Matter plug + stable cooling signature</p><span class="confidence"><i style="width:99%"></i></span></div>
+                <div class="load-state"><span class="control-badge smart"><i data-lucide="wifi"></i>Smart control</span><small>99% confidence</small></div>
+                <div class="outage-action protected"><i data-lucide="shield-check"></i><span><small>During outage</small><strong>Protect</strong></span></div>
+              </article>
+              <article class="discovered-load">
+                <div class="load-icon smart"><i data-lucide="tv"></i></div>
+                <div class="load-copy"><h4>Living room TV</h4><p>Wattwise port + standby signature</p><span class="confidence"><i style="width:96%"></i></span></div>
+                <div class="load-state"><span class="control-badge smart"><i data-lucide="wifi"></i>Smart control</span><small>96% confidence</small></div>
+                <div class="outage-action shed"><i data-lucide="power"></i><span><small>During outage</small><strong>Pause first</strong></span></div>
+              </article>
+              <article class="discovered-load">
+                <div class="load-icon inferred"><i data-lucide="lamp-desk"></i></div>
+                <div class="load-copy"><h4>Desk lamp</h4><p>Recognized from its 9 W switching pattern</p><span class="confidence"><i style="width:82%"></i></span></div>
+                <div class="load-state"><span class="control-badge inferred"><i data-lucide="eye"></i>Inferred only</span><small>82% confidence</small></div>
+                <div class="outage-action manual"><i data-lucide="hand"></i><span><small>During outage</small><strong>Manual action</strong></span></div>
+              </article>
+            </div>
+            <div class="discovery-footnote"><i data-lucide="lock-keyhole"></i><span>Analysis happens locally. Unknown loads are never switched automatically.</span><button class="ask-discovery">Ask how this works <i data-lucide="arrow-right"></i></button></div>
+          </div>
+        </section>
+
         <div class="device-list" id="portList"></div>
       </section>
 

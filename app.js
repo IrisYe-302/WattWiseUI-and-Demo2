@@ -11,8 +11,7 @@ const ports = [
   { port: "Port C", room: "Bedroom", status: "Online", devices: [
     { name: "Medical cooler", watts: 74, level: "Critical", icon: "briefcase-medical", detail: "Always protected" },
     { name: "Bedside lamp", watts: 6, level: "Flexible", icon: "lamp-desk", detail: "Off" }
-  ]},
-  { port: "Port D", room: "Garage", status: "Ready", devices: [] }
+  ]}
 ];
 
 const suggestions = [
@@ -190,6 +189,61 @@ document.querySelector("#registerPort").addEventListener("click", () => {
   showToast("Ready to pair a new Wattwise port");
 });
 
+const discoveryButton = document.querySelector("#startDiscovery");
+const discoveryProgress = document.querySelector("#discoveryProgress");
+const discoveryResults = document.querySelector("#discoveryResults");
+const scanStatus = document.querySelector("#scanStatus");
+const scanDetail = document.querySelector("#scanDetail");
+const scanBar = document.querySelector("#scanBar");
+let discoveryTimers = [];
+
+function scheduleDiscovery(callback, delay) {
+  discoveryTimers.push(window.setTimeout(callback, delay));
+}
+
+discoveryButton.addEventListener("click", () => {
+  discoveryTimers.forEach(window.clearTimeout);
+  discoveryTimers = [];
+  discoveryResults.hidden = true;
+  discoveryProgress.hidden = false;
+  discoveryButton.disabled = true;
+  discoveryButton.classList.add("scanning");
+  discoveryButton.querySelector("span").textContent = "Scanning…";
+  scanBar.style.width = "18%";
+  scanStatus.textContent = "Listening for smart devices…";
+  scanDetail.textContent = "Checking Matter, Wi-Fi and Wattwise ports";
+
+  scheduleDiscovery(() => {
+    scanBar.style.width = "55%";
+    scanStatus.textContent = "Learning power signatures…";
+    scanDetail.textContent = "Comparing recent switching and standby patterns";
+  }, 850);
+
+  scheduleDiscovery(() => {
+    scanBar.style.width = "84%";
+    scanStatus.textContent = "Building an outage plan…";
+    scanDetail.textContent = "Protecting critical loads and flagging manual devices";
+  }, 1750);
+
+  scheduleDiscovery(() => {
+    scanBar.style.width = "100%";
+    discoveryProgress.hidden = true;
+    discoveryResults.hidden = false;
+    discoveryButton.disabled = false;
+    discoveryButton.classList.remove("scanning");
+    discoveryButton.querySelector("span").textContent = "Scan again";
+    document.querySelectorAll(".discovered-load").forEach((load, index) => {
+      load.classList.remove("revealed");
+      scheduleDiscovery(() => load.classList.add("revealed"), index * 130);
+    });
+    showToast("3 loads identified · 2 can respond automatically");
+  }, 2650);
+});
+
+document.querySelector(".ask-discovery").addEventListener("click", () => {
+  openAssistant("How did Wattwise identify these devices?");
+});
+
 suggestionList.addEventListener("click", event => {
   const button = event.target.closest(".suggestion-apply");
   if (!button) return;
@@ -202,7 +256,8 @@ suggestionList.addEventListener("click", event => {
 const responses = {
   "what can i safely turn off?": "You can safely pause the living room TV and game console. They’ve both been idle for over 3 hours and are marked Flexible. That saves 21 W. I’ll leave the fridge, medical cooler, and router untouched.",
   "how long would backup power last?": "At the current protected load, your estimated backup is 9 hours 40 minutes. Pausing flexible devices would extend that by about 1 hour 15 minutes.",
-  "explain my critical devices": "Your kitchen fridge and medical cooler are Critical, so Wattwise never interrupts them. Your router is Important: it stays on in Saver mode, but you can choose how it behaves during a long outage."
+  "explain my critical devices": "Your kitchen fridge and medical cooler are Critical, so Wattwise never interrupts them. Your router is Important: it stays on in Saver mode, but you can choose how it behaves during a long outage.",
+  "how did wattwise identify these devices?": "Wattwise combines direct discovery for connected plugs with local power-signature matching. The medical cooler and TV report that they can be controlled. The desk lamp only matches a measured switching pattern, so Wattwise labels it inferred and never claims it can switch it remotely."
 };
 
 function addMessage(text, type) {
