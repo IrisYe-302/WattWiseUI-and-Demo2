@@ -2,7 +2,7 @@
   "goal_id": "wattwise-estimates-20261017",
   "objective": "Update household estimates and independent LA city scenario from user-referenced chat; publish existing public Site",
   "base_sha": "29028f84e4714c61cd59e9ffd108a582f8b5825a",
-  "status": "implementation",
+  "status": "independent-review",
   "source_chat": {
     "id": "6acaa7bd-9734-83e8-ae21-ea26be70fdd6",
     "title": "LA Tech Events Scan"
@@ -22,7 +22,7 @@
       "role": "read-only domain lead"
     },
     {
-      "id": "/root/ui_lead/estimates_leaf",
+      "id": "/root/ui_lead/estimate_leaf",
       "role": "writer",
       "worktree": "/Users/yaomeng/Desktop/Hackthon/WattWiseUI-estimates-work",
       "branch": "codex/wattwise-estimates",
@@ -40,15 +40,15 @@
   "tasks": [
     {
       "id": "implementation",
-      "status": "running"
+      "status": "completed"
     },
     {
       "id": "integration-and-gates",
-      "status": "pending"
+      "status": "completed"
     },
     {
       "id": "independent-review",
-      "status": "pending"
+      "status": "running"
     },
     {
       "id": "publish-and-public-verify",
@@ -61,10 +61,25 @@
     "Full business brief supplied:151.20 is35*.30 avoided+30*.07 shifting per month, annualized",
     "Include flat126/year and TOU151.20/year planning cases;1/5/10% city scenarios; no avoided+shifted kWh conflation"
   ],
-  "gates": {},
+  "gates": {
+    "syntax": "PASS app.js+estimates.js",
+    "targeted_and_regression": "PASS5/5",
+    "resources": "PASS",
+    "secret_scan": "PASS",
+    "original_unchanged": "PASS",
+    "browser": "PASS SCE/LADWP,cityformulas,links,history",
+    "artifacts": [
+      ".aris/runtime/estimates-tests.txt",
+      ".aris/runtime/estimates-browser-gates.json"
+    ]
+  },
   "review": {},
   "primary_business_brief": {
     "path": "/Users/yaomeng/.codex/attachments/217964b8-e939-4077-acc3-a71211cfe237/已粘贴的文本.txt",
     "sha256": "012e9e9c2a107a9afd1a3ed7ec34dec7f50adeabbc52db4ba498dc95462b7620"
-  }
+  },
+  "implementation_commits": [
+    "6bab5b2",
+    "8e9b89f"
+  ]
 }
