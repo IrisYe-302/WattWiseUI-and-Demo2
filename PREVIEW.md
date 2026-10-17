@@ -1,6 +1,6 @@
 # Wattwise V2 本地预览
 
-原版： http://localhost:8770/index.html  
+原版： http://localhost:8770/index.html
 新版： http://localhost:8772/index.html
 
 基于 `1a20299ce41ff00e87481e1e20e52092ee714b69`。当前 8771 目录虽然命名为 latest，其提交 `47dcd44` 是本版本的父提交。
