@@ -8,7 +8,7 @@
   <link rel="icon" type="image/png" href="assets/wattwise-logo.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -69,10 +69,10 @@
           </div>
         </div>
 
-        <a class="battery-status" href="info.html#smart-batteries" aria-label="Learn how smart battery status signaling works">
-          <div class="battery-status-icon"><i data-lucide="battery-charging"></i></div>
-          <div class="battery-status-copy"><p class="eyebrow">SMART BATTERY NETWORK</p><h2>All batteries reporting</h2><p>Three batteries are sharing reserve and health status through the DC bus voltage signal.</p></div>
-          <div class="battery-status-stats"><span><small>Reserve</small><strong>82%</strong></span><span><small>Protected runtime</small><strong>9h 40m</strong></span><span><small>Status channel</small><strong>Bus voltage</strong></span></div>
+        <a class="battery-status" href="info.html#device-negotiation" aria-label="Learn how devices coordinate their power requests">
+          <div class="battery-status-icon"><i data-lucide="network"></i></div>
+          <div class="battery-status-copy"><p class="eyebrow">HOME POWER COORDINATION</p><h2>Power plan agreed</h2><p>Devices are sharing what they need, what can wait, and which loads must remain protected.</p></div>
+          <div class="battery-status-stats"><span><small>Requests</small><strong>3 active</strong></span><span><small>Protected</small><strong>2 loads</strong></span><span><small>Deferred</small><strong>1 flexible</strong></span></div>
           <i class="battery-status-arrow" data-lucide="arrow-up-right"></i>
         </a>
 

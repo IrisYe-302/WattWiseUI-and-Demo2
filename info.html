@@ -8,13 +8,13 @@
   <link rel="icon" type="image/png" href="assets/wattwise-logo.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="info.css">
 </head>
 <body>
   <header class="site-header">
     <a class="info-brand" href="#top"><span><img src="assets/wattwise-logo.png" alt=""></span>Wattwise</a>
-    <nav aria-label="Information page"><a href="#approach">Approach</a><a href="#smart-batteries">Smart batteries</a><a href="#prototype">Prototype</a></nav>
+    <nav aria-label="Information page"><a href="#approach">Approach</a><a href="#device-negotiation">Device negotiation</a><a href="#prototype">Prototype</a></nav>
     <a class="app-button" href="index.html">Open the app <i data-lucide="arrow-right"></i></a>
   </header>
 
@@ -46,35 +46,35 @@
         <article><span>0</span><div><small>EVERY DAY</small><h3>Normal</h3><p>Measure the home and learn what is actually in use.</p></div></article>
         <article><span>1</span><div><small>EVERY DAY</small><h3>Cut standby waste</h3><p>Pause household-approved phantom loads.</p></div></article>
         <article><span>2</span><div><small>GRID STRESS</small><h3>Defer what can wait</h3><p>Reschedule charging, dishwashing, and other flexible work.</p></div></article>
-        <article><span>3</span><div><small>OUTAGE</small><h3>Battery takeover</h3><p>Protect the reserve and continuously recalculate runtime.</p></div></article>
+        <article><span>3</span><div><small>OUTAGE</small><h3>Coordinate limited power</h3><p>Devices request what they need and flexible work yields to higher priorities.</p></div></article>
         <article><span>4</span><div><small>LONG OUTAGE</small><h3>Critical only</h3><p>Keep medical, cooling, connectivity, and safety loads powered.</p></div></article>
       </div>
     </section>
 
-    <section class="split-section" id="smart-batteries">
-      <div class="signal-visual" aria-label="Three batteries sharing status through a DC bus voltage signal">
+    <section class="split-section" id="device-negotiation">
+      <div class="signal-visual" aria-label="Three household devices coordinating their power requests over a local network">
         <div class="signal-line"><span></span><span></span><span></span></div>
-        <div class="battery-nodes"><div><i data-lucide="battery-charging"></i><b>82%</b><small>Ready</small></div><div><i data-lucide="battery-medium"></i><b>64%</b><small>Reserve</small></div><div><i data-lucide="battery-warning"></i><b>31%</b><small>Attention</small></div></div>
-        <p>Small, controlled voltage shifts carry a status signal across the shared DC bus.</p>
+        <div class="battery-nodes"><div><i data-lucide="refrigerator"></i><b>320 W</b><small>Critical · granted</small></div><div><i data-lucide="battery-charging"></i><b>4 W</b><small>Protected · granted</small></div><div><i data-lucide="tv"></i><b>12 W</b><small>Flexible · waiting</small></div></div>
+        <p>Each device shares a request; Wattwise returns a local grant, delay, or lower-power plan.</p>
       </div>
       <div class="signal-copy">
-        <p class="kicker">SMART BATTERIES</p>
-        <h2>Status can travel with the power.</h2>
-        <p>In the research direction behind Wattwise, a battery converter can encode a small, controlled status signal in the shared DC-bus voltage. Other units already measuring that bus can detect the change and infer a state such as ready, reserve, or attention—without depending on a separate radio message.</p>
-        <p>This family of techniques is often described as <strong>bus-voltage signaling</strong> or <strong>power talk</strong>. It is a research concept for future smart-battery coordination, not a claim about the current LED prototype.</p>
-        <div class="research-links"><a href="https://arxiv.org/abs/1504.03016" target="_blank" rel="noreferrer">Power Talk research <i data-lucide="external-link"></i></a><a href="https://ieeexplore.ieee.org/document/11345703/" target="_blank" rel="noreferrer">State-of-grid SoC signaling <i data-lucide="external-link"></i></a></div>
+        <p class="kicker">DEVICE NEGOTIATION</p>
+        <h2>Every watt makes its case.</h2>
+        <p>Instead of treating a home as one anonymous load, Wattwise lets devices or smart ports describe a request: how much power they need, how urgent it is, how long it will run, and whether it can wait.</p>
+        <p>A local coordinator compares those requests with the available supply. The refrigerator keeps cooling, a protected emergency charger keeps its small draw, and entertainment standby yields first. User rules remain final; negotiation can never overrule a protected load.</p>
+        <div class="research-links"><span><i data-lucide="send"></i>Request</span><span><i data-lucide="scale"></i>Prioritize</span><span><i data-lucide="badge-check"></i>Grant locally</span></div>
       </div>
     </section>
 
     <section class="content-section" id="prototype">
-      <div class="section-intro"><p class="kicker">THE DEMO</p><h2>Three homes on a table.</h2><p>The prototype demonstrates the decision flow without pretending to be a grid-connected battery product.</p></div>
+      <div class="section-intro"><p class="kicker">THE DEMO</p><h2>Two homes on a table.</h2><p>The prototype compares a conventional home with one where devices coordinate around limited power.</p></div>
       <div class="architecture">
-        <article><i data-lucide="house-plug"></i><span>01</span><h3>Smart ports</h3><p>ESP32 nodes represent ports and the devices connected to each one.</p></article>
-        <article><i data-lucide="radio-tower"></i><span>02</span><h3>Local network</h3><p>ESP-NOW carries telemetry while one gateway hosts a local Wi-Fi access point.</p></article>
-        <article><i data-lucide="smartphone"></i><span>03</span><h3>Household app</h3><p>Residents set criticality, review suggestions, and see savings and backup runtime.</p></article>
+        <article><i data-lucide="house-plug"></i><span>01</span><h3>Device requests</h3><p>ESP32 nodes represent appliances with wattage, urgency, duration, and flexibility.</p></article>
+        <article><i data-lucide="radio-tower"></i><span>02</span><h3>Local negotiation</h3><p>ESP-NOW carries request, priority, and grant state without requiring cloud access.</p></article>
+        <article><i data-lucide="smartphone"></i><span>03</span><h3>Resident control</h3><p>Residents protect important devices, approve flexibility, and see why each decision was made.</p></article>
         <article><i data-lucide="shield-check"></i><span>04</span><h3>Safety policy</h3><p>Critical loads are protected locally even if communication or higher-level logic fails.</p></article>
       </div>
-      <div class="boundary"><strong>Clear boundary</strong><p>The current demo uses LEDs, simulated wattage, and ESP-NOW. Voltage-based battery status signaling is the research-backed next-step concept.</p></div>
+      <div class="boundary"><strong>MVP boundary</strong><p>The current prototype uses LEDs, preset device profiles, and ESP-NOW to visualize request and grant outcomes. A next version would measure real loads and exchange live power requests with controllable devices.</p></div>
     </section>
   </main>
 
