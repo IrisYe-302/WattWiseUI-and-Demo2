@@ -13,7 +13,7 @@
   <div class="info-simulation"><strong>SIMULATION · PREVIEW V2</strong><span>Illustrative household model · no live measurements or hardware controls</span></div>
   <header class="site-header">
     <a class="info-brand" href="#top"><span><img src="assets/wattwise-logo.png" alt=""></span>Wattwise</a>
-    <nav aria-label="Information page"><a href="#approach">Approach</a><a href="#device-negotiation">Device negotiation</a><a href="#prototype">Prototype</a></nav>
+    <nav aria-label="Information page"><a href="#approach">Approach</a><a href="#device-negotiation">Device negotiation</a><a href="#city-scenario">City scenario</a><a href="#prototype">Prototype</a></nav>
     <a class="app-button" href="index.html">Open the app <i data-lucide="arrow-right"></i></a>
   </header>
 
@@ -29,7 +29,7 @@
         <div class="runtime-top"><span>Illustrative 13.5 kWh battery</span><strong>One battery, two outcomes</strong></div>
         <div class="runtime-row"><div><span>Level 3 · on battery</span><strong>11 h</strong></div><div class="runtime-track"><i style="width:18%"></i></div></div>
         <div class="runtime-row emphasized"><div><span>Protected essentials</span><strong>60 h</strong></div><div class="runtime-track"><i style="width:100%"></i></div></div>
-        <p>Model assumptions: 13.5 kWh × 82% charge × 90% deliverable energy ≈ 9.96 kWh. Level 3: 879 W ≈ 11.3 h; protected Critical + Important devices: 164 W ≈ 60.8 h. These are illustrative estimates, not measured results or guarantees.</p>
+        <p>Model assumptions: 13.5 kWh × 82% charge × 90% deliverable energy ≈ 9.96 kWh. Level 3: 879 W ≈ 11.3 h; protected Critical + Important devices: 164 W ≈ 60.8 h. Protected runtime is 60 h 45 m at this fixed average load. Startup transients, environmental effects and additional losses are not modeled. These are illustrative estimates, not measured results or guarantees; backup resilience is not counted as dollar savings.</p>
       </div>
     </section>
 
@@ -65,6 +65,17 @@
       </div>
     </section>
 
+    <section class="content-section city-scenario" id="city-scenario" aria-labelledby="cityScenarioTitle">
+      <div class="section-intro"><p class="kicker">HYPOTHETICAL CITY SCENARIO</p><h2 id="cityScenarioTitle">What if 10% of LA households participated?</h2><p>A scale illustration from the supplied business-planning assumptions. These are hypothetical gross electricity-bill benefits, not measured averages or adoption forecasts.</p></div>
+      <div class="city-scenario-grid">
+        <div class="city-total"><span>10% participation · applicable time-of-use pricing</span><strong id="cityAnnualTotal">$21.8M / year</strong><p id="cityPerHome">$151.20 per home / year · $12.60 / month</p><span>Without time-of-use savings</span><strong class="city-flat-total" id="cityFlatTotal">$18.13M / year</strong><p id="cityFlatPerHome">$126.00 per home / year · $10.50 / month</p></div>
+        <div class="city-assumptions"><dl><div><dt>Los Angeles city households</dt><dd id="cityHouseholds">1,439,097</dd></div><div><dt>Avoided electricity per month</dt><dd id="cityAvoided">35 kWh × $0.30 = $10.50</dd></div><div><dt>Shifted electricity per month · TOU only</dt><dd id="cityShifted">30 kWh × $0.07 difference = $2.10</dd></div></dl><p>Household count: U.S. Census Bureau, 2020–2024. Energy and prices are supplied planning assumptions, independent of the app's devices and SCE/LADWP selection. A flat-rate plan, such as the app's LADWP R-1A example, receives no shifting benefit.</p><p>No subscription, equipment, installation, operating or program costs are deducted. These are gross benefits, not net savings.</p></div>
+      </div>
+      <div class="city-table-wrap"><table class="city-adoption-table"><caption>Assumed participation · annual gross household bill benefit</caption><thead><tr><th scope="col">Share of city households</th><th scope="col">Applicable TOU</th><th scope="col">No TOU savings</th></tr></thead><tbody id="cityAdoptionRows"></tbody></table></div>
+      <details class="city-formula"><summary>Assumptions and exact calculations</summary><p id="cityHomeFormula"></p><p id="cityFormula"></p><p id="cityFlatFormula"></p><p>The participation shares are assumptions, not enrolled-household records. The 35 kWh avoided and 30 kWh shifted are separate monthly planning inputs; shifting does not also reduce consumption. Annual standby potential, monthly dishwasher timing, simulated four-week history and backup hours are not added to this city estimate. Backup resilience has no assigned dollar benefit.</p></details>
+      <a class="text-link" href="index.html#insights">Inspect the separate household estimates <i data-lucide="arrow-right"></i></a>
+    </section>
+
     <section class="content-section" id="prototype">
       <div class="section-intro"><p class="kicker">THE DEMO</p><h2>Two homes on a table.</h2><p>The prototype compares a conventional home with one where devices coordinate around limited power.</p></div>
       <div class="architecture">
@@ -79,6 +90,25 @@
 
   <footer><div><strong>Wattwise</strong><span>Project information</span></div><a href="index.html">Open household app <i data-lucide="arrow-right"></i></a></footer>
   <script src="assets/vendor/lucide.min.js"></script>
-  <script>if (window.lucide) lucide.createIcons();</script>
+  <script src="estimates.js"></script>
+  <script>
+    const city = WattwiseEstimates.cityScenario();
+    const cityMoney = value => value.toLocaleString("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2 });
+    document.querySelector("#cityAnnualTotal").textContent = `$${(city.annualTotal / 1000000).toFixed(1)}M / year`;
+    document.querySelector("#cityFlatTotal").textContent = `$${(city.flatAnnualTotal / 1000000).toFixed(2)}M / year`;
+    document.querySelector("#cityHouseholds").textContent = city.households.toLocaleString("en-US");
+    document.querySelector("#cityPerHome").textContent = `${cityMoney(city.annualSavingPerHome)} per home / year · ${cityMoney(city.monthlySavingPerHome)} / month`;
+    document.querySelector("#cityFlatPerHome").textContent = `${cityMoney(city.flatAnnualSavingPerHome)} per home / year · ${cityMoney(city.avoidedMonthlySaving)} / month`;
+    document.querySelector("#cityAvoided").textContent = `${city.avoidedKWhPerMonth} kWh × ${cityMoney(city.pricePerKWh)} = ${cityMoney(city.avoidedMonthlySaving)}`;
+    document.querySelector("#cityShifted").textContent = `${city.shiftedKWhPerMonth} kWh × ${cityMoney(city.peakDiff)} difference = ${cityMoney(city.shiftedMonthlySaving)}`;
+    document.querySelector("#cityHomeFormula").textContent = `Applicable TOU: (${city.avoidedKWhPerMonth} kWh × ${cityMoney(city.pricePerKWh)} + ${city.shiftedKWhPerMonth} kWh × ${cityMoney(city.peakDiff)}) × 12 = ${cityMoney(city.annualSavingPerHome)} per home per year. Without TOU savings: ${city.avoidedKWhPerMonth} kWh × ${cityMoney(city.pricePerKWh)} × 12 = ${cityMoney(city.flatAnnualSavingPerHome)}.`;
+    document.querySelector("#cityFormula").textContent = `${city.households.toLocaleString("en-US")} households × ${city.adoption * 100}% × ${cityMoney(city.annualSavingPerHome)} = ${cityMoney(city.annualTotal)} per year with applicable TOU.`;
+    document.querySelector("#cityFlatFormula").textContent = `${city.households.toLocaleString("en-US")} households × ${city.adoption * 100}% × ${cityMoney(city.flatAnnualSavingPerHome)} = ${cityMoney(city.flatAnnualTotal)} per year without TOU savings.`;
+    document.querySelector("#cityAdoptionRows").innerHTML = [0.01, 0.05, 0.10].map(share => {
+      const scenario = WattwiseEstimates.cityScenario(share);
+      return `<tr><th scope="row">${share * 100}%</th><td>$${(scenario.annualTotal / 1000000).toFixed(2)}M</td><td>$${(scenario.flatAnnualTotal / 1000000).toFixed(2)}M</td></tr>`;
+    }).join("");
+    if (window.lucide) lucide.createIcons();
+  </script>
 </body>
 </html>

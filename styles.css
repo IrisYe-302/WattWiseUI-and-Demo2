@@ -623,3 +623,15 @@ button.grid-card:hover { background: rgba(255,255,255,.11); }
   .usage-chart { height:160px; margin-top:10px; }
   .usage-readout { margin-top:9px; padding:7px 10px; }
 }
+
+/* Potential estimates remain below the overview chart and apart from history. */
+.estimate-breakdown { margin-top:18px; padding:22px; border:1px solid var(--line); border-radius:var(--radius); background:white; }
+.estimate-breakdown header { display:flex; justify-content:space-between; align-items:center; gap:16px; }
+.estimate-breakdown h3 { margin:4px 0 0; font-size:16px; }.estimate-breakdown header a { color:var(--green-dark); font-size:12px; text-decoration:underline; }
+.estimate-breakdown p { margin:12px 0 0; color:#657168; font-size:12px; line-height:1.65; }
+.estimate-rows { margin-top:16px; display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.estimate-rows>div { padding:13px; background:#f3f5f0; border-radius:12px; display:flex; justify-content:space-between; gap:14px; font-size:13px; }
+.estimate-rows small { display:block; margin-top:5px; color:#657168; font-size:11px; line-height:1.5; font-weight:400; }.estimate-rows strong { white-space:nowrap; text-align:right; }
+.estimate-separate { margin-top:16px; padding-top:15px; border-top:1px solid var(--line); }.estimate-separate>strong { font-size:13px; }.estimate-separate p { margin-top:6px; }
+.estimate-breakdown .estimate-history-note { padding:12px; border-radius:10px; background:#f3f5f0; }
+@media(max-width:600px){.estimate-breakdown{padding:18px}.estimate-breakdown header{align-items:flex-start;flex-direction:column;gap:10px}.estimate-rows{grid-template-columns:1fr}}

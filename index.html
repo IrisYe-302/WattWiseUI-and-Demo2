@@ -109,7 +109,7 @@
             <p class="chart-context" id="chartContext">Preset samples, not measurements. Hover, tap or focus a point to compare.</p>
           </article>
 
-          <article class="metric-card outage-summary" id="outageSummary" hidden aria-labelledby="outageSummaryTitle"><div class="metric-heading"><span id="outageSummaryTitle">Backup plan · simulation</span><i data-lucide="shield-check"></i></div><p class="outage-runtime" id="outageRuntime"></p><p id="outageCoverage" role="status"></p><dl class="outage-facts" id="outageFacts"></dl><div class="outage-device-list"><strong>Keeping powered</strong><p id="outagePowered"></p><strong>Paused or deferred</strong><p id="outagePaused"></p></div><p class="estimate-note">Estimate: 13.5 kWh × 82% charge × 90% deliverable energy ÷ this level’s load. Actual runtime varies; no live battery is connected.</p><button class="button secondary" id="outageDetails">Change outage / restore grid</button></article>
+          <article class="metric-card outage-summary" id="outageSummary" hidden aria-labelledby="outageSummaryTitle"><div class="metric-heading"><span id="outageSummaryTitle">Backup plan · simulation</span><i data-lucide="shield-check"></i></div><p class="outage-runtime" id="outageRuntime"></p><p id="outageCoverage" role="status"></p><dl class="outage-facts" id="outageFacts"></dl><div class="outage-device-list"><strong>Keeping powered</strong><p id="outagePowered"></p><strong>Paused or deferred</strong><p id="outagePaused"></p></div><p class="estimate-note">Estimate: 13.5 kWh × 82% charge × 90% deliverable energy ÷ this level’s load. Fixed average loads; no startup transients, environmental effects or additional losses are modeled. Actual runtime varies; no live battery is connected.</p><button class="button secondary" id="outageDetails">Change outage / restore grid</button></article>
 
           <article class="metric-card bill-card" id="billCard">
             <div class="metric-heading"><span>Estimated this month</span><i data-lucide="receipt-text"></i></div>
@@ -130,7 +130,7 @@
 
         <section class="insight-card" id="quickInsight">
           <div class="insight-icon"><i data-lucide="sparkles"></i></div>
-          <div class="insight-copy"><span class="new-label" id="quickInsightLabel">NEW SUGGESTION</span><h2 id="quickInsightTitle">Reduce standby power when it is not needed</h2><p id="quickInsightText">Your TV and game console sit on standby about 20 hours a day. Wattwise can pause both until you need them again.</p><div class="savings"><span><strong id="quickInsightWatts">21 W</strong> eligible standby</span><span><strong id="quickInsightSaving">$59</strong> per year</span></div></div>
+          <div class="insight-copy"><span class="new-label" id="quickInsightLabel">NEW SUGGESTION</span><h2 id="quickInsightTitle">Reduce standby power when it is not needed</h2><p id="quickInsightText">Your TV and game console sit on standby about 20 hours a day. Wattwise can pause both until you need them again.</p><div class="savings"><span><strong id="quickInsightWatts">21 W</strong> eligible standby</span><span><strong id="quickInsightSaving">$59.02</strong> potential / year</span></div></div>
           <div class="insight-actions"><button class="button primary" id="applySuggestion">Review standby pause</button><button class="button ghost ask-assistant">Ask about this</button></div>
         </section>
       </section>
@@ -191,6 +191,13 @@
       <section class="dashboard-section" id="insights" aria-labelledby="insights-title">
         <div class="page-heading"><div><p class="eyebrow" id="insightCountLabel">2 READY FOR REVIEW</p><h2 id="insights-title">Energy insights</h2><p>Small changes, ranked by impact and comfort.</p></div></div>
         <div class="suggestion-list" id="suggestionList"></div>
+        <section class="estimate-breakdown" aria-labelledby="estimateBreakdownTitle">
+          <header><div><p class="eyebrow">FUTURE POTENTIAL · ILLUSTRATIVE</p><h3 id="estimateBreakdownTitle">Where the household estimate comes from</h3></div><a href="info.html#city-scenario">See city scenario ↗</a></header>
+          <div class="estimate-rows" id="standbyBreakdown"></div>
+          <p id="standbyEstimateBasis"></p>
+          <div class="estimate-separate"><strong>Dishwasher timing · separate monthly comparison</strong><p id="dishwasherEstimate"></p></div>
+          <p class="estimate-history-note">Future standby potential and dishwasher timing are separate comparisons. Neither is added to the simulated four-week History totals. Device watts describe power; kWh describes energy over time. Backup runtime is not assigned a dollar saving.</p>
+        </section>
       </section>
 
       <section class="dashboard-section" id="history" aria-labelledby="history-title">
@@ -349,6 +356,7 @@
   <div class="toast" role="status" aria-live="polite"></div>
 
   <script src="assets/vendor/lucide.min.js"></script>
+  <script src="estimates.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

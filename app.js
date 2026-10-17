@@ -9,7 +9,7 @@ const MODEL = {
   approvedStandbyKW: 0.02, // standby loads the household already approved for automatic pause
   dailyKWh: 11.1,          // average daily use this month (matches the History chart)
   budget: 150,
-  standbyHoursPerDay: 20
+  standbyHoursPerDay: WattwiseEstimates.ASSUMPTIONS.standbyHoursPerDay
 };
 
 // Illustrative plan prices for this simulation; not verified current utility tariffs.
@@ -272,23 +272,25 @@ function renderDeviceStrip() {
   }).join("");
 }
 
-// Savings follow the chosen plan: standby is 21 W for about 20 h a day; the dishwasher runs about 15 times a month.
+// Future potential is separate from instantaneous draw and preset four-week history.
 function priceSuggestions() {
-  const watts = eligibleStandby().reduce((sum, device) => sum + device.watts, 0);
-  const standbyYear = watts * MODEL.standbyHoursPerDay * 365 / 1000 * plan().price;
+  const estimate = WattwiseEstimates.standby(allDevices(), plan().price, MODEL.standbyHoursPerDay);
+  const { eligibleWatts: watts, annualKWh, annualSaving } = estimate;
   suggestions[0].watts = `${watts} W`;
   $("#quickInsightWatts").textContent = `${watts} W`;
-  $("#quickInsightTitle").textContent = `Avoid about ${Math.round(watts * MODEL.standbyHoursPerDay * 365 / 1000)} kWh a year of standby use`;
-  suggestions[0].savings = `$${Math.round(standbyYear)} / year`;
-  $("#quickInsightSaving").textContent = `$${Math.round(standbyYear)}`;
+  $("#quickInsightTitle").textContent = `Avoid about ${Math.round(annualKWh)} kWh a year of standby use`;
+  suggestions[0].savings = `${WattwiseEstimates.dollars(annualSaving)} potential / year`;
+  $("#quickInsightSaving").textContent = WattwiseEstimates.dollars(annualSaving);
+  $("#standbyBreakdown").innerHTML = estimate.rows.map(row => `<div><span>${escapeHtml(row.name)}<small>${row.watts} W preset standby · ${row.eligible ? `${row.annualKWh.toFixed(1)} kWh / year` : "protected · excluded"}</small></span><strong>${WattwiseEstimates.dollars(row.annualSaving)}<small>potential / year</small></strong></div>`).join("");
+  $("#standbyEstimateBasis").textContent = `Eligible total: ${annualKWh.toFixed(1)} kWh / year × ${Math.round(plan().price * 1000) / 10}¢/kWh = ${WattwiseEstimates.dollars(annualSaving)} / year. Assumes ${MODEL.standbyHoursPerDay} standby hours every day for 365 days. Approval pauses power now; it does not earn a year's saving immediately.`;
+  const dishEstimate = WattwiseEstimates.dishwasher({ peakDiff: plan().peakDiff, eligible: ports[0].devices[1].level === "Flexible" });
   const dish = suggestions[1];
-  if (plan().peakDiff > 0) {
-    dish.body = `Running it after the 4 to 9 PM peak costs about ${Math.round(plan().peakDiff * 100)}¢ less per kWh. Your dishes will still be ready by morning.`;
-    dish.savings = `$${(1.2 * 15 * plan().peakDiff).toFixed(2)} / month`;
-  } else {
-    dish.body = "Your plan charges the same at every hour, so this saves no money, but it moves 1.2 kWh out of the evening peak when the grid is most stressed.";
-    dish.savings = "Eases the evening peak";
-  }
+  dish.watts = `${WattwiseEstimates.ASSUMPTIONS.dishwasherKWhPerRun} kWh per run`;
+  dish.body = plan().peakDiff > 0
+    ? `Peak-to-off-peak comparison: ${WattwiseEstimates.ASSUMPTIONS.dishwasherRunsPerMonth} runs × ${WattwiseEstimates.ASSUMPTIONS.dishwasherKWhPerRun} kWh × the plan's price difference. This preset is already scheduled for 10:30 PM, so confirming it adds $0.00.`
+    : "This plan has no time-of-use price difference. Moving a run later has $0.00 bill-saving potential. This preset is already scheduled for 10:30 PM.";
+  dish.savings = `${WattwiseEstimates.dollars(dishEstimate.monthlyPotential)} potential / month`;
+  $("#dishwasherEstimate").textContent = `${WattwiseEstimates.dollars(dishEstimate.monthlyPotential)} / month potential for shifting ${WattwiseEstimates.ASSUMPTIONS.dishwasherRunsPerMonth} × ${WattwiseEstimates.ASSUMPTIONS.dishwasherKWhPerRun} kWh from peak to off-peak at ${Math.round(plan().peakDiff * 100)}¢/kWh difference. Current preset: already off-peak; ${WattwiseEstimates.dollars(dishEstimate.incrementalMonthlySaving)} additional saving. ${ports[0].devices[1].level === "Flexible" ? "" : "Dishwasher is protected; excluded from changes."}`;
 }
 
 function renderSuggestions() {
@@ -310,7 +312,7 @@ function renderSuggestions() {
   const pausedW = allDevices().filter(isStandbyPaused).reduce((sum, d) => sum + d.watts, 0);
   quick.textContent = suggestions[0].applied ? "Restore now" : "Review standby pause";
   $("#quickInsightText").textContent = suggestions[0].applied ? `Suggestion active for ${pausedW} W of eligible standby. Restore now removes this pause; an outage plan may still keep Flexible devices paused.` : "Review the eligible standby devices before pausing them. You can restore power here at any time; Critical and Important devices stay powered.";
-  $("#quickInsightLabel").textContent = suggestions[0].applied ? "SAVING ENERGY NOW" : "NEW SUGGESTION";
+  $("#quickInsightLabel").textContent = suggestions[0].applied ? "STANDBY PAUSE ACTIVE" : "NEW SUGGESTION";
 }
 
 function renderStatus() {
@@ -561,7 +563,7 @@ function applySuggestion(index) {
     ? `<div><dt>Duration</dt><dd>Until you select Restore now</dd></div><div><dt>Restore</dt><dd>Available here and in Insights</dd></div><div><dt>Eligible standby</dt><dd>${eligible.reduce((sum, device) => sum + device.watts, 0)} W · ${eligible.length} devices</dd></div>`
     : `<div><dt>Current schedule</dt><dd>${escapeHtml(targets[0].detail)}</dd></div><div><dt>Requested schedule</dt><dd>10:30 PM tonight · after 9 PM peak</dd></div><div><dt>Cancel</dt><dd>Return to the previous schedule from Insights</dd></div>`;
   $("#suggestionReviewNote").textContent = eligible.length ? index === 0 ? "Only the Flexible devices listed above will pause in this simulation. Restore now removes the suggestion pause. An active outage plan can still keep these devices paused until the simulated grid returns." : "This confirms tonight’s 10:30 PM schedule in the simulation. If already scheduled then, it does not produce additional savings. Critical and Important devices are unchanged." : "No eligible Flexible devices. Protected devices cannot be paused or rescheduled by this suggestion.";
-  $("#suggestionReviewEstimate").textContent = index === 0 ? `Potential ${item.savings}, assuming ${MODEL.standbyHoursPerDay} standby hours every day at the illustrative ${Math.round(plan().price * 1000) / 10}¢/kWh rate. This is not a measured result.` : "The monthly estimate assumes 15 runs × 1.2 kWh shifted from peak to off-peak. Existing off-peak schedules do not add savings; no wash cycle is started.";
+  $("#suggestionReviewEstimate").textContent = index === 0 ? `Estimate: ${item.savings}, assuming ${MODEL.standbyHoursPerDay} standby hours every day at the illustrative ${Math.round(plan().price * 1000) / 10}¢/kWh rate. This is not a measured result.` : $("#dishwasherEstimate").textContent + " No wash cycle is started.";
   $("#confirmSuggestion").disabled = !eligible.length;
   suggestionDialog.showModal(); $("#cancelSuggestionReview").focus();
 }
@@ -1020,3 +1022,6 @@ $("#activityFilters").addEventListener("click", event => {
 
 // Render after all review/chart bindings are initialized.
 render();
+
+// The information page links directly to these household estimates.
+if (location.hash === "#insights") navigate("insights");

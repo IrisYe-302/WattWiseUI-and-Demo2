@@ -26,6 +26,7 @@ function boot() {
     localStorage:{getItem:()=>null,setItem(){},removeItem(){}},sessionStorage:{getItem:()=>null,setItem(){}}, location:{hash:''},
     setTimeout:fn=>{timers.push(fn);return timers.length;},clearTimeout(){}
   });
+  vm.runInContext(fs.readFileSync(path.join(__dirname,'../estimates.js'),'utf8'),context);
   vm.runInContext(fs.readFileSync(path.join(__dirname,'../app.js'),'utf8'),context);
   return { get, run:code=>vm.runInContext(code,context), timers };
 }
@@ -92,3 +93,38 @@ short.timers[0]();
 assert.equal(short.run('state.level'),3);
 assert.match(short.get('#outageCoverage').textContent,/cover the 4 h scenario/);
 console.log('PASS: full app boots; review/cancel/apply/restore; protected eligibility; Room edit binding; schedule recovery; outage reasons; chart endpoint/history; short outage');
+
+// Estimate changes must follow tariff and eligibility, while preset history stays unchanged.
+const estimatesApp = boot();
+assert.equal(estimatesApp.get('#quickInsightSaving').textContent, '$59.02');
+assert.match(estimatesApp.get('#standbyBreakdown').innerHTML, /\$33\.73/);
+assert.match(estimatesApp.get('#standbyBreakdown').innerHTML, /\$25\.29/);
+assert.match(estimatesApp.get('#standbyEstimateBasis').textContent, /153\.3 kWh/);
+assert.match(estimatesApp.get('#dishwasherEstimate').textContent, /\$4\.32 \/ month potential/);
+assert.match(estimatesApp.get('#dishwasherEstimate').textContent, /\$0\.00 additional saving/);
+const historyBefore = estimatesApp.get('#historyKpis').innerHTML;
+assert.match(historyBefore, /\$22\.79/);
+const cityBefore = estimatesApp.run('JSON.stringify(WattwiseEstimates.cityScenario())');
+estimatesApp.run('applySuggestion(0)');
+estimatesApp.get('#suggestionReviewForm').emit('submit');
+assert.equal(estimatesApp.get('#historyKpis').innerHTML, historyBefore);
+assert.equal(estimatesApp.get('#quickInsightSaving').textContent, '$59.02', 'annual potential is not instant realized revenue');
+estimatesApp.run('restoreSuggestion(0)');
+assert.equal(estimatesApp.get('#historyKpis').innerHTML, historyBefore);
+estimatesApp.run('profile.plan="ladwp"; render()');
+assert.equal(estimatesApp.get('#quickInsightSaving').textContent, '$45.99');
+assert.match(estimatesApp.get('#dishwasherEstimate').textContent, /\$0\.00 \/ month potential/);
+assert.equal(estimatesApp.run('JSON.stringify(WattwiseEstimates.cityScenario())'), cityBefore, 'app tariff must not change city planning inputs');
+estimatesApp.run('ports[1].devices[1].level="Important";render()');
+assert.equal(estimatesApp.get('#quickInsightSaving').textContent, '$19.71');
+assert.match(estimatesApp.get('#standbyBreakdown').innerHTML, /protected · excluded/);
+estimatesApp.run('ports[1].devices[2].level="Critical";ports[0].devices[1].level="Important";render()');
+assert.equal(estimatesApp.get('#quickInsightSaving').textContent, '$0.00');
+assert.match(estimatesApp.get('#dishwasherEstimate').textContent, /protected; excluded/);
+estimatesApp.run('resetDemoState()');
+assert.equal(estimatesApp.run('state.mode'), 'normal');
+assert.equal(estimatesApp.run('homeKW()'), 1.3);
+estimatesApp.run('setMode("saver")');
+assert.equal(estimatesApp.run('homeKW()'), 0.9);
+assert.equal(estimatesApp.run('hoursLabel(availableKWh() / .164)'), '60h 45m');
+console.log('PASS: estimate cents, tariff/eligibility updates, no history double counting, independent city scenario, unchanged runtime');

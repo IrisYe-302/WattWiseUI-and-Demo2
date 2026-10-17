@@ -46,3 +46,12 @@ footer { min-height:110px; padding:0 max(24px,calc((100vw - 1132px)/2)); border-
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
 
 .info-simulation { padding:10px 24px; background:#e0e9db; color:#304a37; display:flex; justify-content:center; flex-wrap:wrap; gap:8px 18px; font-size:11px; }.info-simulation strong { letter-spacing:.06em; }.runtime-card>p { font-size:11px; line-height:1.6; }
+
+.city-scenario { border-top:1px solid var(--line); }
+.city-scenario-grid { margin-top:30px; display:grid; grid-template-columns:.9fr 1.1fr; gap:20px; }
+.city-total { padding:28px; border-radius:20px; background:var(--forest); color:white; }.city-total>span { font-size:12px; color:#d4ded5; }.city-total>strong { display:block; margin:18px 0; font:400 clamp(25px,3vw,38px) "Archivo Black",Arial,sans-serif; }.city-total>p { color:#d4ded5; font-size:12px; line-height:1.65; }
+.city-assumptions { padding:20px; border:1px solid var(--line); border-radius:20px; background:white; }.city-assumptions dl { margin:0; }.city-assumptions dl>div { display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px 16px; padding:12px 0; border-bottom:1px solid var(--line); font-size:12px; }.city-assumptions dt { color:var(--muted); }.city-assumptions dd { margin:0; font-weight:700; }.city-assumptions p,.city-formula p { color:var(--muted); font-size:12px; line-height:1.7; }
+.city-formula { margin:20px 0; padding:18px 20px; border:1px solid var(--line); border-radius:14px; background:#e5eae5; }.city-formula summary { cursor:pointer; font-size:13px; font-weight:700; }.city-formula p:last-child { margin-bottom:0; }
+@media(max-width:800px){.city-scenario-grid{grid-template-columns:1fr}.city-total{padding:24px}}
+.city-total>.city-flat-total { margin:10px 0; font-size:26px; }
+.city-table-wrap { margin-top:22px; overflow-x:auto; }.city-adoption-table { width:100%; border-collapse:collapse; font-size:12px; text-align:left; }.city-adoption-table caption { padding:0 0 12px; text-align:left; color:var(--muted); }.city-adoption-table th,.city-adoption-table td { padding:13px 12px; border-bottom:1px solid var(--line); }.city-adoption-table thead { background:var(--sage-soft); }.city-adoption-table tbody th { font-weight:500; }
