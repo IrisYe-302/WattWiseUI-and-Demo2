@@ -1,0 +1,28 @@
+{
+  "verdict": "GO",
+  "reviewed_head": "46b6645f6fc76edef0a1dc7dc33f53e47515691f",
+  "route": "collaboration/default fresh context read-only reviewer",
+  "actual_model": "Inherited parent Codex model; explicit model identifier not exposed",
+  "cross_model_completed": false,
+  "cross_model_attempt": {
+    "route": "mcp__claude_review__review_start/review_status",
+    "job_id": "2719f92b8e1342f6bdabef99344012aa",
+    "status": "failed",
+    "reason": "OAuth401 invalid access token",
+    "actual_model": null
+  },
+  "findings": [],
+  "summary_zh": "独立读取diff、代码、测试与现场截图后GO，无必须修复问题。同族独立上下文审查；Claude跨模型通道认证失败，未算作成功审查。",
+  "nonblocking_followups_zh": [
+    "移动端视口未实际操作验证"
+  ],
+  "protected_source_sha256": {
+    "app.js": "f83adf7d120f6a7eb0b4db7dd41ce66df3e382cea7bc9a6cbf2098a6372e7d7b",
+    "index.html": "160810ec3b4d92ce44eb0b9e1c64b519c5f03ec926db29bf8cc4716b18af6507",
+    "styles.css": "dc7123d076832ff70ce99a783cabbb821b9fca6c5e4614d8ca6244f091d6dfd2",
+    "info.html": "7f2802954bc07fc09f5d70048de187ef69bdebabde3f9727f16c77db89c6e77a",
+    "info.css": "61aba673ff3bde153854cd20457e39b47da4c2e327c638dc6909b08332199f25",
+    "tests/preview-behavior.test.cjs": "d4582921f3b0c663e5705c89bf25596cbb0be1d4cb1ae08ac2d6fdd4e4dea4e3"
+  },
+  "fingerprint": "942926b9073407911f7e230e7e0f22e01248b8862bad3c78131189b7035ff760"
+}
