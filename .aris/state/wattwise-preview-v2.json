@@ -1,7 +1,7 @@
 {
   "goal_id": "wattwise-preview-v2-20261017",
   "objective": "Create independent local preview implementing approved audit items 2, 3, 4, 5 and improving home usage chart",
-  "status": "implementation",
+  "status": "independent-review",
   "base_sha": "1a20299ce41ff00e87481e1e20e52092ee714b69",
   "branch": "codex/wattwise-preview-v2",
   "worktree": "/Users/yaomeng/Desktop/Hackthon/WattWiseUI-preview-v2",
@@ -27,13 +27,13 @@
       "id": "ui",
       "parent_lead_id": "/root",
       "agent": "/root/ui_lead",
-      "status": "running",
+      "status": "completed",
       "depends_on": []
     },
     {
       "id": "integration",
       "agent": "/root",
-      "status": "pending",
+      "status": "completed",
       "depends_on": [
         "ui"
       ]
@@ -41,14 +41,14 @@
     {
       "id": "deterministic-and-browser-gates",
       "agent": "/root",
-      "status": "pending",
+      "status": "completed",
       "depends_on": [
         "integration"
       ]
     },
     {
       "id": "independent-review",
-      "status": "pending",
+      "status": "running",
       "depends_on": [
         "deterministic-and-browser-gates"
       ]
@@ -66,7 +66,21 @@
     "8771 occupied by older local version; preview uses 8772",
     "User confirmed base 8770 explicitly"
   ],
-  "gates": {},
+  "gates": {
+    "syntax": "PASS",
+    "targeted_tests": "PASS",
+    "path_ownership": "PASS",
+    "resources": "PASS",
+    "secrets": "PASS",
+    "original_unchanged": "PASS",
+    "desktop_browser": "PASS",
+    "console": "PASS",
+    "artifacts": [
+      ".aris/runtime/node-tests.txt",
+      ".aris/runtime/deterministic-gates.json",
+      ".aris/runtime/browser-gates.json"
+    ]
+  },
   "review": {
     "route": null,
     "model": null,
@@ -104,5 +118,7 @@
   "gate_policy": {
     "local": "syntax, targeted tests, resource/hygiene/ownership/secret checks, browser flows",
     "review": "fresh context inspecting requirement, diff, commit and primary gate artifacts; Claude preferred"
-  }
+  },
+  "implementation_commit": "6466f9c",
+  "visual_rework_commit": "cbab35f"
 }

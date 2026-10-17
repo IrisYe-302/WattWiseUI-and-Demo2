@@ -23,4 +23,22 @@
 
 初始基线：`1a20299ce41ff00e87481e1e20e52092ee714b69`。原版对照截图：`.aris/runtime/baseline-overview.png`。
 
-后续在实现集成后记录实际测试与截图，不将本清单当作通过结果。
+## 已完成结果
+
+实现集成：`6466f9c`。首屏密度修正：`cbab35f`。
+
+- JavaScript 语法和 Node 行为回归通过。行为覆盖：应用完整启动、review/cancel/apply/restore、当前保护资格、房间视图编辑绑定、排程恢复、停电暂停原因、164 W 图表末点、历史样本不伪造变化、短停电。
+- 本地资源、重复 HTML ID、路径所有权、秘密模式、原版文件哈希和 Git 空白检查通过。
+- 1280×720 浏览器中验证首页取消不执行、确认应用 900→879 W、Restore now 恢复 900 W、方向键读取图表历史点、房间分组、Normal 1300 W。
+- 48 h 长停电模拟从 Level 3 的 879 W/11h20m 降至 Level 4 的 164 W/60h45m，图表末点与可读描述同步；账单替换为保护计划。恢复电网后回到 900 W。
+- Insights 洗碗机 review、应用、取消排程通过；History 与说明页的模拟和模型假设说明通过。
+- 浏览器 warnings/errors 查询为空。
+- 初次视觉验收发现新增说明将图表挤出首屏，已压缩桌面布局；复验同尺寸可直接看到完整曲线、时间轴与当前读数。
+
+机器记录：`.aris/runtime/deterministic-gates.json`、`.aris/runtime/browser-gates.json`、`.aris/runtime/node-tests.txt`。截图与 SHA256 记录在 browser-gates.json。
+
+主要截图：`v2-overview.png`、`v2-review.png`、`v2-room-view.png`、`v2-outage.png`、`v2-history.png`，位于 `.aris/runtime/`。
+
+边界：未连接硬件、未证明真实收益；移动布局审查了 CSS，本次未在手机视口实测。没有远程写入。
+
+独立审查结果将在审查后补充。
