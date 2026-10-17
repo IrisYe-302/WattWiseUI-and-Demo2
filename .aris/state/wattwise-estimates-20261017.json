@@ -1,0 +1,64 @@
+{
+  "goal_id": "wattwise-estimates-20261017",
+  "objective": "Update household estimates and independent LA city scenario from user-referenced chat; publish existing public Site",
+  "base_sha": "29028f84e4714c61cd59e9ffd108a582f8b5825a",
+  "status": "implementation",
+  "source_chat": {
+    "id": "6acaa7bd-9734-83e8-ae21-ea26be70fdd6",
+    "title": "LA Tech Events Scan"
+  },
+  "invariants": [
+    "Original8770 untouched",
+    "No actual hardware or energy control",
+    "Default SCE plan unchanged",
+    "Annual151.20 treated as scenario not empirical average",
+    "Historical4wk22.79 not annualized to city",
+    "Runtime benefit not counted as money saved",
+    "Existing public Site identity/audience retained"
+  ],
+  "agents": [
+    {
+      "id": "/root/ui_lead",
+      "role": "read-only domain lead"
+    },
+    {
+      "id": "/root/ui_lead/estimates_leaf",
+      "role": "writer",
+      "worktree": "/Users/yaomeng/Desktop/Hackthon/WattWiseUI-estimates-work",
+      "branch": "codex/wattwise-estimates",
+      "owned_paths": [
+        "app.js",
+        "index.html",
+        "styles.css",
+        "info.html",
+        "info.css",
+        "estimates.js",
+        "tests/"
+      ]
+    }
+  ],
+  "tasks": [
+    {
+      "id": "implementation",
+      "status": "running"
+    },
+    {
+      "id": "integration-and-gates",
+      "status": "pending"
+    },
+    {
+      "id": "independent-review",
+      "status": "pending"
+    },
+    {
+      "id": "publish-and-public-verify",
+      "status": "pending"
+    }
+  ],
+  "decisions": [
+    "Preserve existing household demonstration and add clearly separate city scenario",
+    "Recompute per-device cents from raw watts/hours/rate, not prorating rounded59"
+  ],
+  "gates": {},
+  "review": {}
+}
