@@ -76,5 +76,33 @@
     "port": 8772,
     "pid": 10947,
     "health": "HTTP 200; browser gate pending"
+  },
+  "agents": [
+    {
+      "id": "/root/ui_lead",
+      "role": "domain-lead",
+      "status": "read-only implementation review"
+    },
+    {
+      "id": "/root/ui_lead/ui_leaf",
+      "role": "leaf-writer",
+      "branch": "codex/wattwise-v2-ui",
+      "base_sha": "1a20299ce41ff00e87481e1e20e52092ee714b69",
+      "worktree": "/Users/yaomeng/Desktop/Hackthon/WattWiseUI-v2-implementation",
+      "owned_paths": [
+        "app.js",
+        "index.html",
+        "styles.css",
+        "info.html",
+        "info.css",
+        "DEMO.md",
+        "tests/"
+      ],
+      "status": "implementation and targeted tests"
+    }
+  ],
+  "gate_policy": {
+    "local": "syntax, targeted tests, resource/hygiene/ownership/secret checks, browser flows",
+    "review": "fresh context inspecting requirement, diff, commit and primary gate artifacts; Claude preferred"
   }
 }
