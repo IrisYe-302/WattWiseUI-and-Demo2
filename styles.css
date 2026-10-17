@@ -600,3 +600,26 @@ button.grid-card:hover { background: rgba(255,255,255,.11); }
 .button:disabled { opacity:.5; cursor:not-allowed; }
 @media(max-width:700px){.priority-guide{grid-template-columns:1fr}.simulation-banner{font-size:10px}.usage-chart{height:164px}.usage-legend{font-size:9px}.usage-readout .chart-saving{margin-left:0}.outage-runtime{font-size:23px}.device-behavior{max-width:none}.top-actions{gap:7px}.live-pill{font-size:9px;padding:6px 8px}.review-facts>div{grid-template-columns:90px 1fr}}
 @media(prefers-reduced-motion:reduce){.usage-chart *{transition:none!important}}
+
+/* Keep the power graph visible on shorter desktop screens without changing its order. */
+@media (min-width: 781px) and (max-height: 850px) {
+  .topbar { height:80px; }
+  .simulation-banner { margin-bottom:10px; padding:3px 1px; border:0; border-radius:0; background:transparent; font-size:10px; gap:7px 12px; }
+  .simulation-tag { font-size:9px; }
+  .mode-banner { min-height:82px; padding:13px 20px; gap:14px; }
+  .mode-icon { width:42px; height:42px; border-radius:13px; }
+  .mode-copy p:last-child { font-size:12px; line-height:1.35; }
+  .battery-status { margin-top:10px; padding:10px 16px; gap:12px; }
+  .battery-status-copy .eyebrow { margin-bottom:3px; font-size:9px; }
+  .battery-status-copy p:last-child { line-height:1.35; }
+  .ladder-strip { margin-top:10px; }
+  .ladder-strip li { padding:6px 9px; }
+  .ladder-note { margin-top:6px; font-size:10px; }
+  .metric-grid { margin-top:13px; }
+  .metric-card { padding:18px 21px; }
+  .metric-value { margin-top:8px; }
+  .usage-chart-heading { margin-top:13px; gap:7px; }
+  .usage-chart-heading b { display:inline; margin:0 0 0 7px; }
+  .usage-chart { height:160px; margin-top:10px; }
+  .usage-readout { margin-top:9px; padding:7px 10px; }
+}
