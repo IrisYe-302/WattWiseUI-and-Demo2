@@ -1,0 +1,2 @@
+/* Local copy of Archivo Black (SIL OFL 1.1, via Fontsource) so the demo works without internet. Body text uses system Arial. */
+@font-face { font-family: "Archivo Black"; font-style: normal; font-weight: 400; font-display: swap; src: url("fonts/archivo-black-latin-400-normal.woff2") format("woff2"); }

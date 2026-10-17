@@ -6,9 +6,7 @@
   <meta name="theme-color" content="#2f443a">
   <title>How Wattwise Works</title>
   <link rel="icon" type="image/png" href="assets/wattwise-logo.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/fonts.css">
   <link rel="stylesheet" href="info.css">
 </head>
 <body>
@@ -54,7 +52,7 @@
     <section class="split-section" id="device-negotiation">
       <div class="signal-visual" aria-label="Three household devices coordinating their power requests over a local network">
         <div class="signal-line"><span></span><span></span><span></span></div>
-        <div class="battery-nodes"><div><i data-lucide="refrigerator"></i><b>320 W</b><small>Critical · granted</small></div><div><i data-lucide="battery-charging"></i><b>4 W</b><small>Protected · granted</small></div><div><i data-lucide="tv"></i><b>12 W</b><small>Flexible · waiting</small></div></div>
+        <div class="battery-nodes"><div><i data-lucide="refrigerator"></i><b>72 W</b><small>Critical · granted</small></div><div><i data-lucide="battery-charging"></i><b>4 W</b><small>Protected · granted</small></div><div><i data-lucide="tv"></i><b>12 W</b><small>Flexible · waiting</small></div></div>
         <p>Each device shares a request; Wattwise returns a local grant, delay, or lower-power plan.</p>
       </div>
       <div class="signal-copy">
@@ -79,7 +77,7 @@
   </main>
 
   <footer><div><strong>Wattwise</strong><span>Project information</span></div><a href="index.html">Open household app <i data-lucide="arrow-right"></i></a></footer>
-  <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+  <script src="assets/vendor/lucide.min.js"></script>
   <script>if (window.lucide) lucide.createIcons();</script>
 </body>
 </html>
