@@ -2,7 +2,7 @@
   "goal_id": "wattwise-estimates-20261017",
   "objective": "Update household estimates and independent LA city scenario from user-referenced chat; publish existing public Site",
   "base_sha": "29028f84e4714c61cd59e9ffd108a582f8b5825a",
-  "status": "independent-review",
+  "status": "completed",
   "source_chat": {
     "id": "6acaa7bd-9734-83e8-ae21-ea26be70fdd6",
     "title": "LA Tech Events Scan"
@@ -19,7 +19,8 @@
   "agents": [
     {
       "id": "/root/ui_lead",
-      "role": "read-only domain lead"
+      "role": "read-only domain lead",
+      "status": "completed"
     },
     {
       "id": "/root/ui_lead/estimate_leaf",
@@ -34,7 +35,8 @@
         "info.css",
         "estimates.js",
         "tests/"
-      ]
+      ],
+      "status": "completed"
     }
   ],
   "tasks": [
@@ -48,11 +50,11 @@
     },
     {
       "id": "independent-review",
-      "status": "running"
+      "status": "completed"
     },
     {
       "id": "publish-and-public-verify",
-      "status": "pending"
+      "status": "completed"
     }
   ],
   "decisions": [
@@ -71,9 +73,27 @@
     "artifacts": [
       ".aris/runtime/estimates-tests.txt",
       ".aris/runtime/estimates-browser-gates.json"
-    ]
+    ],
+    "public_runtime": "PASS",
+    "public_browser": "PASS",
+    "public_screenshot": ".aris/runtime/estimates-public-city.png"
   },
-  "review": {},
+  "review": {
+    "verdict": "GO",
+    "head_sha": "69813ad4216c94569ee12e1b58c1d3a661c67e22",
+    "route": "Codex independent fresh-context read-only review",
+    "cross_model": false,
+    "findings": [],
+    "summary_zh": "完整业务资料、代码diff、五项测试和三张浏览器截图独立核对通过，无必须返工问题。",
+    "runtime_sha256": {
+      "app.js": "d940a2a173004d0f15d004ff265c093aa2598b9dd8b902088488754b2503fc87",
+      "estimates.js": "1fd1bdd6a75704a460f9a1dba93465da36e52ef46da2f59a399ba5ffa98bbc0f",
+      "index.html": "c73dfa86a089952c6c42ce4b45e0ccfc7e6bb14628cc61b637bd4568903dfd40",
+      "styles.css": "a0d8394f40dc6f2ae18c881284f5bde59794897f049cd51b25c0d934e31e5b11",
+      "info.html": "3c84cf939601045f469d26977f1c828021281a62a97b3054e9b278156ccab9ef",
+      "info.css": "7d66c76b2dbccee87e3c6ec76b9408bd6e8fd9f6633973af28e5059063dd6787"
+    }
+  },
   "primary_business_brief": {
     "path": "/Users/yaomeng/.codex/attachments/217964b8-e939-4077-acc3-a71211cfe237/已粘贴的文本.txt",
     "sha256": "012e9e9c2a107a9afd1a3ed7ec34dec7f50adeabbc52db4ba498dc95462b7620"
@@ -81,5 +101,19 @@
   "implementation_commits": [
     "6bab5b2",
     "8e9b89f"
-  ]
+  ],
+  "publication": {
+    "project_id": "appgprj_6ad3f6cfd030819199d34b2173ffceef",
+    "version_id": "appgprj_6ad3f6cfd030819199d34b2173ffceef~appgver_3e98daf2d6c48191a613d1084fc06c0d",
+    "version_number": 2,
+    "deployment_id": "appgdep_6ad4019b86c48191b75b4fc5eb18ef99",
+    "status": "succeeded",
+    "url": "https://wattwise-v2.chengweiye496.chatgpt.site",
+    "source_commit": "5ca743aa6a5f5a51c45ca134868242ba0c52f518",
+    "access_mode": "public",
+    "anonymous_runtime_checks": "PASS 6 updated resources",
+    "public_browser": "PASS device estimates, city151.20/126 and21.8M/18.13M, console empty",
+    "summary_zh": "同一公开站点版本2已发布并实测；估测数值及条件说明与业务资料一致。"
+  },
+  "remaining_required_work": []
 }

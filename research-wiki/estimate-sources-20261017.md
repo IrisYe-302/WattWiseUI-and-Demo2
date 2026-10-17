@@ -74,3 +74,18 @@ $151.20/年相当于 $12.60/月。该规划模型不冒充从现有两个设备�
 ```
 
 采用固定平均负载；90% 比例已计入模型的交付折减。未进一步建模启动瞬态、额外损耗、负载循环或环境变化，不能保证真实设备续航或将该韧性收益再加进电费节省。
+
+## 验证与发布
+
+实现提交：`6bab5b2`、`8e9b89f`。独立只读审查 HEAD：`69813ad4216c94569ee12e1b58c1d3a661c67e22`，GO，无必须返工问题；实际路线为 Codex 同族独立上下文，没有宣称跨模型成功。
+
+- `app.js`、`estimates.js` 语法检查通过，五项目标和回归测试通过。
+- 浏览器实测 SCE 的 $33.73/$25.29/$59.02、LADWP 的 $26.28/$19.71/$45.99 与 $0 错峰潜力；恢复原 SCE 设置。
+- 城市双情景、1%/5%/10% 表、精确公式展开、跨页链接、四周历史 $22.79 保持独立，均通过。
+- 原 8770 运行文件未修改；新资源 `estimates.js` 已进入公开部署。
+- 同一公开网址的版本 2 发布成功，Sites 源码提交 `5ca743aa6a5f5a51c45ca134868242ba0c52f518`。匿名资源请求通过，公网浏览器实际读到新数据，无控制台错误。
+
+城市页面：https://wattwise-v2.chengweiye496.chatgpt.site/info#city-scenario
+家庭明细：https://wattwise-v2.chengweiye496.chatgpt.site/index.html#insights
+
+短验收收据见 `estimates-acceptance-20261017.json`。机器测试和截图位于 `.aris/runtime/estimates-*`；发布记录位于独立发布目录的 `.sites-runtime/estimates-deployment.json`。
