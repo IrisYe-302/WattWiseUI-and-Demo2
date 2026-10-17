@@ -6,16 +6,75 @@
   "branch": "codex/wattwise-preview-v2",
   "worktree": "/Users/yaomeng/Desktop/Hackthon/WattWiseUI-preview-v2",
   "preview_port": 8772,
-  "invariants": ["Preserve running original 8770 and older 8771", "Local simulation only", "No remote writes", "Keep protected loads protected", "Preserve current theme", "No unapproved wholesale redesign, assistant changes, or persistence scope"],
-  "capabilities": {"spawning": true, "nested_spawning": true, "git_worktrees": true, "github_remote": "present; local-only task", "cross_model_review": "claude_review available; not yet verified", "ci": "no repository workflow; local gates"},
-  "tasks": [
-    {"id": "ui", "parent_lead_id": "/root", "agent": "/root/ui_lead", "status": "running", "depends_on": []},
-    {"id": "integration", "agent": "/root", "status": "pending", "depends_on": ["ui"]},
-    {"id": "deterministic-and-browser-gates", "agent": "/root", "status": "pending", "depends_on": ["integration"]},
-    {"id": "independent-review", "status": "pending", "depends_on": ["deterministic-and-browser-gates"]},
-    {"id": "handoff", "status": "pending", "depends_on": ["independent-review"]}
+  "invariants": [
+    "Preserve running original 8770 and older 8771",
+    "Local simulation only",
+    "No remote writes",
+    "Keep protected loads protected",
+    "Preserve current theme",
+    "No unapproved wholesale redesign, assistant changes, or persistence scope"
   ],
-  "decisions": ["8770 base includes 8771 commit 47dcd44 as parent; use functionally complete 8770", "8771 occupied by older local version; preview uses 8772"],
+  "capabilities": {
+    "spawning": true,
+    "nested_spawning": true,
+    "git_worktrees": true,
+    "github_remote": "present; local-only task",
+    "cross_model_review": "claude_review available; not yet verified",
+    "ci": "no repository workflow; local gates"
+  },
+  "tasks": [
+    {
+      "id": "ui",
+      "parent_lead_id": "/root",
+      "agent": "/root/ui_lead",
+      "status": "running",
+      "depends_on": []
+    },
+    {
+      "id": "integration",
+      "agent": "/root",
+      "status": "pending",
+      "depends_on": [
+        "ui"
+      ]
+    },
+    {
+      "id": "deterministic-and-browser-gates",
+      "agent": "/root",
+      "status": "pending",
+      "depends_on": [
+        "integration"
+      ]
+    },
+    {
+      "id": "independent-review",
+      "status": "pending",
+      "depends_on": [
+        "deterministic-and-browser-gates"
+      ]
+    },
+    {
+      "id": "handoff",
+      "status": "pending",
+      "depends_on": [
+        "independent-review"
+      ]
+    }
+  ],
+  "decisions": [
+    "8770 base includes 8771 commit 47dcd44 as parent; use functionally complete 8770",
+    "8771 occupied by older local version; preview uses 8772",
+    "User confirmed base 8770 explicitly"
+  ],
   "gates": {},
-  "review": {"route": null, "model": null, "verdict": null}
+  "review": {
+    "route": null,
+    "model": null,
+    "verdict": null
+  },
+  "server": {
+    "port": 8772,
+    "pid": 10947,
+    "health": "HTTP 200; browser gate pending"
+  }
 }
