@@ -57,8 +57,14 @@
   ],
   "decisions": [
     "Preserve existing household demonstration and add clearly separate city scenario",
-    "Recompute per-device cents from raw watts/hours/rate, not prorating rounded59"
+    "Recompute per-device cents from raw watts/hours/rate, not prorating rounded59",
+    "Full business brief supplied:151.20 is35*.30 avoided+30*.07 shifting per month, annualized",
+    "Include flat126/year and TOU151.20/year planning cases;1/5/10% city scenarios; no avoided+shifted kWh conflation"
   ],
   "gates": {},
-  "review": {}
+  "review": {},
+  "primary_business_brief": {
+    "path": "/Users/yaomeng/.codex/attachments/217964b8-e939-4077-acc3-a71211cfe237/已粘贴的文本.txt",
+    "sha256": "012e9e9c2a107a9afd1a3ed7ec34dec7f50adeabbc52db4ba498dc95462b7620"
+  }
 }
