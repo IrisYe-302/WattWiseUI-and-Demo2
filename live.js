@@ -44,6 +44,7 @@
   var lastLevelPushed = null;
   var pill;
   var scanPending = false;
+  var budgetDragging = false;
 
   function resolveHost() {
     var q = new URLSearchParams(location.search).get("live");
@@ -61,27 +62,94 @@
 
   /* ---------- status pill ---------- */
 
+  // A floating control for the real bus. Injected rather than built into the
+  // page, so it exists only when hardware is actually connected and the
+  // simulation is untouched without it.
   function makePill() {
     pill = document.createElement("div");
     pill.id = "liveBusPill";
     pill.style.cssText = [
       "position:fixed", "right:16px", "bottom:16px", "z-index:9999",
-      "display:flex", "align-items:center", "gap:8px",
-      "padding:8px 14px", "border-radius:999px",
-      "font:600 12px/1 ui-sans-serif,system-ui,sans-serif",
-      "letter-spacing:.04em", "text-transform:uppercase",
-      "background:rgba(20,23,26,.92)", "color:#e8eaed",
-      "box-shadow:0 4px 16px rgba(0,0,0,.25)", "cursor:default",
-      "transition:opacity .3s"
+      "width:260px", "padding:14px 16px", "border-radius:14px",
+      "font:13px/1.45 ui-sans-serif,system-ui,-apple-system,sans-serif",
+      "background:rgba(18,21,25,.95)", "color:#e8eaed",
+      "box-shadow:0 8px 28px rgba(0,0,0,.35)",
+      "backdrop-filter:blur(8px)"
     ].join(";");
-    pill.innerHTML = '<span id="liveBusDot" style="width:8px;height:8px;border-radius:50%;background:#ff6b81"></span><span id="liveBusText">power line: offline</span>';
+    pill.innerHTML =
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">' +
+        '<span id="liveBusDot" style="width:8px;height:8px;border-radius:50%;background:#ff6b81;flex:none"></span>' +
+        '<span id="liveBusText" style="font-weight:600;letter-spacing:.03em;' +
+        'text-transform:uppercase;font-size:11px">power line: offline</span>' +
+        '<button id="liveBusFold" style="margin-left:auto;background:none;border:0;' +
+        'color:#9aa3af;cursor:pointer;font-size:15px;line-height:1;padding:0">–</button>' +
+      '</div>' +
+      '<div id="liveBusBody">' +
+        '<div style="display:flex;justify-content:space-between;align-items:baseline">' +
+          '<span style="font-size:24px;font-weight:600;font-variant-numeric:tabular-nums">' +
+          '<span id="liveBudget">–</span> W</span>' +
+          '<span id="liveAlloc" style="color:#9aa3af;font-size:12px"></span>' +
+        '</div>' +
+        '<input id="liveBudgetSlider" type="range" min="0" max="120" step="5" value="100" ' +
+        'style="width:100%;accent-color:#6ea8fe;margin:10px 0 2px">' +
+        '<div style="color:#9aa3af;font-size:11.5px">Available power on the bus. ' +
+        'Loads shed in priority order — lowest number survives longest.</div>' +
+        '<div id="liveNodes" style="margin-top:10px;display:grid;gap:5px"></div>' +
+      '</div>';
     document.body.appendChild(pill);
+
+    var slider = document.getElementById("liveBudgetSlider");
+    slider.addEventListener("input", function () {
+      budgetDragging = true;
+      document.getElementById("liveBudget").textContent = (slider.value / 10).toFixed(1);
+    });
+    slider.addEventListener("change", function () {
+      fetch("http://" + host + "/api/budget?dw=" + slider.value)
+        .catch(function () {})
+        .then(function () { budgetDragging = false; tick(); });
+    });
+    document.getElementById("liveBusFold").addEventListener("click", function () {
+      var b = document.getElementById("liveBusBody");
+      var hidden = b.style.display === "none";
+      b.style.display = hidden ? "" : "none";
+      this.textContent = hidden ? "–" : "+";
+    });
   }
 
   function setPill(text, ok) {
     if (!pill) return;
     document.getElementById("liveBusDot").style.background = ok ? "#3fcf8e" : "#ff6b81";
     document.getElementById("liveBusText").textContent = text;
+  }
+
+  // Mirror the bus in the panel, so the shed order is visible even when the
+  // Ports page is not the one on screen.
+  function setPanel(data) {
+    if (!pill) return;
+    if (!budgetDragging) {
+      document.getElementById("liveBudget").textContent = (data.budget_dW / 10).toFixed(1);
+      document.getElementById("liveBudgetSlider").value = data.budget_dW;
+    }
+    document.getElementById("liveAlloc").textContent =
+      (data.alloc_dW / 10).toFixed(1) + " W allocated";
+
+    var rows = [];
+    if (data.local) rows.push({ name: "Controller", prio: data.local.prio, on: data.local.on, present: true });
+    (data.nodes || []).forEach(function (n) {
+      rows.push({ name: (NAMES[n.id] && NAMES[n.id].name) || ("Load " + n.id),
+                  prio: n.prio, on: n.on, present: n.present });
+    });
+    rows.sort(function (a, b) { return a.prio - b.prio; });
+
+    document.getElementById("liveNodes").innerHTML = rows.map(function (r) {
+      var colour = !r.present ? "#4b5563" : r.on ? "#3fcf8e" : "#ff6b81";
+      var label  = !r.present ? "gone" : r.on ? "on" : "shed";
+      return '<div style="display:flex;align-items:center;gap:7px;font-size:12px">' +
+        '<span style="width:7px;height:7px;border-radius:50%;background:' + colour + ';flex:none"></span>' +
+        '<span style="opacity:.9">' + r.name + '</span>' +
+        '<span style="color:#6b7280;font-size:11px">p' + r.prio + '</span>' +
+        '<span style="margin-left:auto;color:' + colour + ';font-size:11px">' + label + '</span></div>';
+    }).join("");
   }
 
   /* ---------- model plumbing ---------- */
@@ -260,6 +328,7 @@
         applyNodes(data.nodes || []);
         (data.nodes || []).forEach(announce);
         renderScan(data.nodes || []);
+        setPanel(data);
 
         var sub = document.getElementById("sub");
         if (sub) {
