@@ -5,7 +5,7 @@ four XIAO boards sharing two wires that carry power *and* data — one power nod
 the rest load adapters that announce themselves, report their draw and shed when
 the budget runs short. No data line, no pairing.
 
-Firmware lives in `../firmware/plc_node`.
+Firmware lives in `firmware/plc_node`.
 
 ## Running it
 
@@ -23,7 +23,7 @@ The page talks to whoever served it, so it finds the bus on its own. To put the
 UI on the board after changing it:
 
 ```bash
-../firmware/upload-ui.sh          # builds a LittleFS image and flashes it
+firmware/upload-ui.sh          # builds a LittleFS image and flashes it
 ```
 
 Firmware alone still works: without an uploaded UI the node serves its own

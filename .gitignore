@@ -1,1 +1,4 @@
 .aris/runtime/
+
+# Arduino build output
+firmware/build/
