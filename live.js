@@ -48,7 +48,14 @@
     var q = new URLSearchParams(location.search).get("live");
     if (q === "off") { try { localStorage.removeItem(STORE); } catch (e) {} return null; }
     if (q) { try { localStorage.setItem(STORE, q === "" ? DEFAULT_HOST : q); } catch (e) {} return q === "" ? DEFAULT_HOST : q; }
-    try { return localStorage.getItem(STORE); } catch (e) { return null; }
+    try { var saved = localStorage.getItem(STORE); if (saved) return saved; } catch (e) {}
+    // Served by the power node itself: talk to whoever served this page. No
+    // query string, no configuration — open the board's address and it works.
+    if (location.protocol.indexOf("http") === 0 &&
+        location.hostname && !/^(localhost|127\.|0\.0\.0\.0$)/.test(location.hostname)) {
+      return location.host;
+    }
+    return null;
   }
 
   /* ---------- status pill ---------- */

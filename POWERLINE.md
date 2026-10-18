@@ -9,6 +9,28 @@ Firmware lives in `../firmware/plc_node`.
 
 ## Running it
 
+### Straight off the board (no laptop)
+
+The power node serves this UI itself from its filesystem partition. Join its
+access point and open it — nothing else to run, no query string:
+
+```
+wifi:  powerbus-XXXX / powerbus
+open:  http://192.168.4.1
+```
+
+The page talks to whoever served it, so it finds the bus on its own. To put the
+UI on the board after changing it:
+
+```bash
+../firmware/upload-ui.sh          # builds a LittleFS image and flashes it
+```
+
+Firmware alone still works: without an uploaded UI the node serves its own
+compact dashboard instead, and says which one it is at boot.
+
+### From a laptop
+
 Power node up (it serves an access point by default):
 
 ```
