@@ -43,6 +43,7 @@
   var known = {};          // node id -> last state, for edge detection
   var lastLevelPushed = null;
   var pill;
+  var scanPending = false;
 
   function resolveHost() {
     var q = new URLSearchParams(location.search).get("live");
@@ -163,6 +164,85 @@
     fetch("http://" + host + "/api/budget?dw=" + LEVEL_BUDGET_dW[level]).catch(function () {});
   }
 
+  /* ---------- the Ports page controls the real bus ---------- */
+
+  var PRIO_OF_LEVEL = { Critical: 0, Important: 2, Flexible: 4 };
+
+  // Changing a priority on the Ports page sets it on the node itself. It rides
+  // out with that node's next poll and is saved in its flash, so it survives a
+  // reboot — the dropdown is configuring hardware, not a label.
+  function wirePriority() {
+    var list = document.getElementById("portList");
+    if (!list) return;
+    list.addEventListener("change", function (ev) {
+      if (!connected || !ev.target.matches("select")) return;
+      var pi = Number(ev.target.dataset.port);
+      var port = ports[pi];
+      if (!port || !port.live) return;
+      var dev = port.devices[Number(ev.target.dataset.device)];
+      if (!dev || dev.liveId === undefined) return;
+      var prio = PRIO_OF_LEVEL[ev.target.value];
+      if (prio === undefined) return;
+      fetch("http://" + host + "/api/prio?id=" + dev.liveId + "&prio=" + prio).catch(function () {});
+      logEvent("protection", prio === 0 ? "shield-check" : "shield-off",
+        dev.name + " set to " + ev.target.value,
+        "Priority written to the adapter over the power line. It is stored on the "
+        + "node, so it survives a power cycle.", "line");
+    }, true);   // capture: run before the app's own handler re-renders
+  }
+
+  // The scan button asks the bus who is out there, rather than replaying a
+  // scripted animation. The node widens its discovery window; anything
+  // unenrolled answers and appears in the table.
+  function wireScan() {
+    var btn = document.getElementById("startDiscovery");
+    if (!btn) return;
+    btn.addEventListener("click", function () {
+      if (!connected) return;
+      fetch("http://" + host + "/api/discover").catch(function () {});
+      logEvent("network", "scan-search", "Scanning the power line",
+        "Asked every adapter on the power conductors to identify itself. "
+        + "Nothing transmits unless invited, so the bus stays collision free.", "line");
+      scanPending = true;
+    }, true);
+  }
+
+  // Replace the scripted scan results with what actually answered. There is no
+  // confidence score here on purpose: these devices are not being inferred from
+  // a power signature, they stated their own address and priority over the bus.
+  function renderScan(nodes) {
+    var wrap = document.querySelector(".discovered-loads");
+    if (!wrap) return;
+    var live = nodes.filter(function (n) { return n.present; });
+
+    wrap.innerHTML = live.map(function (n) {
+      var meta = NAMES[n.id] || {};
+      var critical = n.prio <= 0;
+      return '<article class="discovered-load revealed">' +
+        '<div class="load-icon smart"><i data-lucide="' + (meta.icon || 'plug-zap') + '"></i></div>' +
+        '<div class="load-copy"><h4>' + (meta.name || ('Load ' + n.id)) + '</h4>' +
+        '<p>Node ' + n.id + ' · answered over the power line in ' + n.rtt + ' ms</p>' +
+        '<span class="confidence"><i style="width:100%"></i></span></div>' +
+        '<div class="load-state"><span class="control-badge smart">' +
+        '<i data-lucide="zap"></i>Power line control</span>' +
+        '<small>identified, not inferred</small></div>' +
+        '<div class="outage-action ' + (critical ? 'protected' : '') + '">' +
+        '<i data-lucide="' + (critical ? 'shield-check' : 'pause') + '"></i>' +
+        '<span><small>When power is short</small><strong>' +
+        (critical ? 'Protect' : 'Can shed') + '</strong></span></div></article>';
+    }).join('');
+
+    var sum = document.querySelector(".discovery-summary");
+    if (sum) {
+      var strong = sum.querySelector("strong"), small = sum.querySelector("small"),
+          pill = sum.querySelector(".simulation-pill");
+      if (strong) strong.textContent = live.length + " adapter" + (live.length === 1 ? "" : "s") + " answered";
+      if (small)  small.textContent  = "all controllable over the power conductors";
+      if (pill)   pill.textContent   = "Live scan";
+    }
+    if (window.lucide) lucide.createIcons();
+  }
+
   /* ---------- poll ---------- */
 
   function tick() {
@@ -179,6 +259,7 @@
 
         applyNodes(data.nodes || []);
         (data.nodes || []).forEach(announce);
+        renderScan(data.nodes || []);
 
         var sub = document.getElementById("sub");
         if (sub) {
@@ -210,6 +291,8 @@
     makePill();
     if (!host) { setPill("simulation only", false); pill.style.opacity = "0.5"; return; }
     setPill("power line: connecting…", false);
+    wirePriority();
+    wireScan();
     tick();
     setInterval(tick, POLL_MS);
   }

@@ -31,6 +31,7 @@ function boot(busState, search = '?live=10.0.0.5') {
 
   const byId = new Map();
   const body = new Node();
+  const bySel = new Map();
   const timers = [];
   const store = new Map();
 
@@ -40,6 +41,7 @@ function boot(busState, search = '?live=10.0.0.5') {
     document: {
       querySelector: get, querySelectorAll: () => [], addEventListener() {},
       createElement: () => new Node(), body,
+      querySelector: sel => { if (!bySel.has(sel)) bySel.set(sel, new Node()); return bySel.get(sel); },
       getElementById: id => { if (!byId.has(id)) byId.set(id, new Node()); return byId.get(id); },
       readyState: 'complete'
     },
@@ -70,7 +72,7 @@ const BUS = {
   nodes: [
     { id: 1, present: true,  on: true,  draw_dW: 25, prio: 2, rtt: 1620, ok: 27, miss: 1 },
     { id: 2, present: true,  on: false, draw_dW: 25, prio: 3, rtt: 1655, ok: 12, miss: 0 },
-    { id: 4, present: true,  on: true,  draw_dW: 40, prio: 4, rtt: 1700, ok: 5,  miss: 0 }
+    { id: 4, present: true,  on: true,  draw_dW: 40, prio: 0, rtt: 1700, ok: 5,  miss: 0 }
   ]
 };
 
@@ -98,6 +100,8 @@ const BUS = {
 
   // --- an unnamed node still appears, named after its address ---
   assert.equal(app.run('ports.find(p=>p.port==="Node 4").devices[0].name'), 'Load 4');
+  assert.equal(app.run('ports.find(p=>p.port==="Node 4").devices[0].level'), 'Critical',
+    'priority 0 maps to Critical');
 
   // --- joins are logged as power-line events, which is the whole story ---
   const lineEvents = JSON.parse(app.run('JSON.stringify(liveActivity.filter(e=>e.channel==="line").map(e=>e.title))'));
@@ -107,6 +111,14 @@ const BUS = {
   // --- the UI's level is pushed to the real bus as a budget ---
   assert.ok(app.fetched.some(u => /\/api\/state/.test(u)), 'should poll state');
   assert.ok(app.fetched.some(u => /\/api\/budget\?dw=120/.test(u)), 'level 2 should push 120 dW');
+
+  // --- the scan panel shows what answered, not a scripted list ---
+  const scanHtml = app.run('document.querySelector(".discovered-loads").innerHTML');
+  assert.match(scanHtml, /Node 1/, 'scan results should list real nodes');
+  assert.match(scanHtml, /answered over the power line/);
+  assert.equal((scanHtml.match(/discovered-load/g) || []).length, 3, 'one card per present node');
+  assert.match(scanHtml, /Protect/, 'a priority-0 node is protected');
+  assert.doesNotMatch(scanHtml, /illustrative match/, 'no fabricated confidence scores');
   assert.ok(app.fetched.every(u => u.startsWith('http://10.0.0.5/')), 'host should come from ?live=');
 
   // --- no hardware means no interference ---

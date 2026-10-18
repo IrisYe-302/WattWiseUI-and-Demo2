@@ -71,6 +71,14 @@ When it does connect:
   existing Oct 15 entry. Those events are now real rather than seeded.
 - The UI's level is pushed back to the bus as a power budget, so stepping the
   simulation down to critical-only physically sheds loads on the bench.
+- **The Ports page controls real hardware.** Changing a device's priority
+  writes it to that adapter over the power line, where it is saved in flash and
+  survives a power cycle — the dropdown configures a node, not a label. It
+  rides out with the node's next poll, so no extra round trip.
+- **The scan asks the bus.** The button widens the node's discovery window and
+  anything unenrolled answers. Results are what replied, with no confidence
+  scores: these devices are not inferred from a power signature, they stated
+  their own address and priority.
 
 That last point is the one worth rehearsing. Step 5 of `DEMO.md` already steps
 from Level 3 to Level 4 during the wildfire shutoff. With the bus connected,
