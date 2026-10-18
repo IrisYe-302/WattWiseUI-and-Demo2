@@ -124,11 +124,13 @@ const isStandbyPaused = device => device.standby && standbyPaused() && device.le
 // What a device draws right now, given the level and approvals.
 const outageCut = device => state.mode === "outage" && device.level === "Flexible" && (state.level >= 4 || device.standby);
 function deviceDraw(device) {
+  if (device.liveShed) return 0;            // live.js: shed by the real power-line bus
   if (outageCut(device)) return 0;
   if (isStandbyPaused(device)) return 0;
   return device.watts;
 }
 function deviceDetail(device) {
+  if (device.liveDetail) return device.liveDetail;   // live.js: real node status
   if (outageCut(device)) return state.level >= 4 ? "Paused · protected-device backup" : "Paused · standby waste cut on battery";
   if (isStandbyPaused(device)) return "Paused by suggestion · use Restore now";
   return device.detail;
@@ -239,7 +241,7 @@ function renderPorts() {
     const entries = group.indices.flatMap(portIndex => ports[portIndex].devices.map((device, deviceIndex) => ({ device, portIndex, deviceIndex })));
     const groupPorts = group.indices.map(index => ports[index]);
     return `<article class="port-card ${entries.length ? "" : "empty-port"}">
-      <header class="port-card-header"><div class="port-symbol"><i data-lucide="${deviceView === "rooms" ? "house" : "blocks"}"></i></div><div><span class="port-kicker">SIMULATED · ${deviceView === "rooms" ? "ROOM" : groupPorts[0].status}</span><h3>${escapeHtml(group.name)}</h3><p>${escapeHtml(deviceView === "rooms" ? groupPorts.map(port => port.port).join(" · ") : groupPorts[0].room)} · ${entries.length} ${entries.length === 1 ? "device" : "devices"}</p></div><strong>${entries.reduce((sum, { device }) => sum + deviceDraw(device), 0)} W</strong></header>
+      <header class="port-card-header"><div class="port-symbol"><i data-lucide="${deviceView === "rooms" ? "house" : "blocks"}"></i></div><div><span class="port-kicker">${groupPorts.some(port => port.live) ? "LIVE" : "SIMULATED"} · ${deviceView === "rooms" ? "ROOM" : groupPorts[0].status}</span><h3>${escapeHtml(group.name)}</h3><p>${escapeHtml(deviceView === "rooms" ? groupPorts.map(port => port.port).join(" · ") : groupPorts[0].room)} · ${entries.length} ${entries.length === 1 ? "device" : "devices"}</p></div><strong>${entries.reduce((sum, { device }) => sum + deviceDraw(device), 0)} W</strong></header>
       <div class="nested-devices">${entries.length ? entries.map(({ device, portIndex, deviceIndex }) => `
         <div class="nested-device ${deviceDraw(device) === 0 && device.watts > 0 ? "paused-device" : ""}">
           <div class="device-icon"><i data-lucide="${device.icon}"></i></div>
